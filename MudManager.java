@@ -2,6 +2,15 @@ package mud;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.FindIterable;
+import com.mongodb.Block;
+import org.bson.Document;
+import org.mongodb.morphia.Morphia;
+
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Sorts.ascending;
+import static java.util.Arrays.asList;
 
 import com.amazon.speech.slu.Intent;
 import com.amazon.speech.speechlet.LaunchRequest;
@@ -19,10 +28,23 @@ public class MudManager {
 
     private static final String MONGO_DATABASE = "mud";
 
-    private final MongoDatabase db;
+    private final Morphia morphia;
+    private final Datastore datastore;
 
     public MudManager(final MongoClient mongoClient) {
-	db = mongoClient.getDatabase(MONGO_DATABASE);
+        morphia = new Morphia();
+        morphia.map(MudPlayer.class).map(MudRoom.class).map(MudItem.class).map(MudExit.class);
+        datastore = morphia.createDatastore(MongoClient(), MONGO_DATABASE);
+        datastore.ensureIndexes();
+    }
+
+    private MudPlayer getPlayer(String userId) {
+        MudPlayer player;
+
+        FindIterable<Document> cursor = player_collection.find(new Document("_id", userId)).limit(1);
+        Document pDoc = cursor.first();
+
+        return player;
     }
 
     /**
@@ -35,14 +57,17 @@ public class MudManager {
      * @return response for launch request
      */
     public SpeechletResponse getLaunchResponse(LaunchRequest request, Session session) {
-        MudUser user = MudDB.getUser(session);
+        String speechOutput = "", repromptText = "";
+        MudPlayer player = getPlayer(session.getUser().getUserId());
 
-        if (user == null) {
-            return getNewPlayerResponse(session);
+        if (player == null) {
+    	    speechOutput = "Welcome to the Mud. I see this is your first time here, for instructions, say 'help me'. ";
+	    player = newPlayer(session);
+        } else {
+            speechOutput = "Welcome back to the Mud.";
         }
 
-	    String speechOutput, repromptText;
-        speechOutput = "You have " + user.inventory().size() + " items in your inventory.";
+        speechOutput += "You have " + player.inventory.size() + " items in your inventory.";
         // add the room description to the output
         speechOutput += "What do you want to do now?";
         repromptText = "For instructions, please say help me.";
@@ -50,38 +75,22 @@ public class MudManager {
         return getAskSpeechletResponse(speechOutput, repromptText);
     }
 
-    private SpeechletResponse getNewPlayerResponse(Session session) {
-	    String speechOutput, repromptText;
-    	    speechOutput = "Welcome to the Mud. I see this is your first time here. ";
-	    repromptText = "For instructions, please say help me.";
-	    speechOutput += repromptText;
-	    MudDB.newUser(session);
-    }
-
     public SpeechletResponse getLookIntentResponse(Intent intent, Session session) {
-        MudUser user = MudDB.getUser(session);
+        MudPlayer player = getPlayer(session.getUser().getUserId());
 
-        if (user == null) {
-            return getNewPlayerResponse(session);
-        }
-
-	    String speechOutput, repromptText;
-        speechOutput = user.room().description();
-        repromptText = "You can look again, ask for help, get a hint, or do something.";
+        String speechOutput, repromptText;
+        speechOutput = player.room().description();
+        repromptText = "You can look again, take some other action, ask for help or a hint.";
 
         return getAskSpeechletResponse(speechOutput, repromptText);
     }
 
     public SpeechletResponse getHintIntentResponse(Intent intent, Session session) {
-        MudUser user = MudDB.getUser(session);
+        MudPlayer player = getPlayer(session.getUser().getUserId());
 
-        if (user == null) {
-            return getNewPlayerResponse(session);
-        }
-
-	    String speechOutput, repromptText;
-        speechOutput = user.room().hint();
-        repromptText = "That is what is available for a hint.  Try looking again or searching, maybe?";
+	String speechOutput, repromptText;
+        speechOutput = player.room().hint();
+        repromptText = "Why not try taking another look around or doing a search?";
 
         return getAskSpeechletResponse(speechOutput, repromptText);
     }
@@ -97,8 +106,8 @@ public class MudManager {
      *            {@link SkillContext} for this request
      * @return response for the help intent
      */
-    public SpeechletResponse getHelpIntentResponse(Intent intent, Session session) {
-        String speechOutput = "You are in a multiuser dungeon or mud. "
+    public SpeechletResponse getHelpIntentReponse(Intent intent, Session session) {
+        String speechOutput = "You are in a multiplayer dungeon or mud. "
         + "Your goal is to find treasure, gain experience, and escape! "
         + "You can take actions like 'look around', 'open chest', "
         + "'light torch', 'get key', and 'search room'. "
@@ -107,7 +116,23 @@ public class MudManager {
         + "can say 'go north'.  You can also ask me for a hint. "
         + "Now, what can I help you with?";
         String repromptText = "Try saying 'look around' or ask me for help again to hear the instructions.";
-        return newAskResponse(speechOutput, repromptText);
+
+        // Create the Simple card content.
+        SimpleCard card = new SimpleCard();
+        card.setTitle("Mud");
+        card.setContent(speechOutput);
+
+        // Create the plain text output.
+        PlainTextOutputSpeech speech = new PlainTextOutputSpeech();
+        speech.setText(speechOutput);
+
+        // Create reprompt
+        PlainTextOutputSpeech repromptSpeech = new PlainTextOutputSpeech();
+        repromptSpeech.setText(repromptText);
+        Reprompt reprompt = new Reprompt();
+        reprompt.setOutputSpeech(repromptSpeech);
+
+        return SpeechletResponse.newAskResponse(speech, reprompt, card);
     }
 
     /**
