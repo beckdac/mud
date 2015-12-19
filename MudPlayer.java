@@ -8,8 +8,8 @@ import org.mongodb.morphia.annotations.Reference;
 import org.bson.types.ObjectId;
 
 import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 @Entity("players")
 public class MudPlayer {
@@ -17,8 +17,8 @@ public class MudPlayer {
     private Date lastSeen;
     @Reference
     private MudRoom room;
-    @Embedded
-    private List<MudItem> inventory = new ArrayList<MudItem>();;
+    @Embedded("inventory")
+    private Map<String, MudItem> inventory = new HashMap<String, MudItem>();
 
     public MudPlayer() {
     }
@@ -35,7 +35,7 @@ public class MudPlayer {
         room = newRoom;
     }
 
-    public List<MudItem> getInventory() {
+    public Map<String, MudItem> getInventory() {
         return inventory;
     }
 

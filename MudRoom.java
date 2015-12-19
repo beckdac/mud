@@ -10,16 +10,18 @@ import org.bson.types.ObjectId;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 @Entity("rooms")
 public class MudRoom {
     @Id private ObjectId id;
     private String description;
     private Date lastVisited;
-    @Embedded
-    private List<MudExit> exits = new ArrayList<MudExit>();
-    @Embedded
-    private List<MudItem> items = new ArrayList<MudItem>();
+    @Embedded("exits")
+    private Map<String, MudExit> exits = new HashMap<String, MudExit>();
+    @Embedded("items")
+    private Map<String, MudItem> items = new HashMap<String, MudItem>();
     @Reference
     private List<MudPlayer> players = new ArrayList<MudPlayer>();
 
@@ -38,11 +40,19 @@ public class MudRoom {
         description = desc;
     }
 
-    public List<MudExit> getExits() {
+    public MudRoom getExitDestination(String name) {
+        return exits.get(name).getDestination();
+    }
+
+    public Map<String, MudExit> getExits() {
         return exits;
     }
 
-    public List<MudItem> getItems() {
+    public MudItem getItem(String name) {
+        return items.get(name);
+    }
+
+    public Map<String, MudItem> getItems() {
         return items;
     }
 

@@ -37,15 +37,13 @@ public class Test {
             datastore.save(northRoom);
 
             MudExit northExit = new MudExit();
-            northExit.setName("north");
             northExit.setDestination(northRoom);
-            startRoom.getExits().add(northExit);
+            startRoom.getExits().put("north", northExit);
             datastore.save(startRoom);
 
             MudExit southExit = new MudExit();
-            southExit.setName("south");
             southExit.setDestination(startRoom);
-            northRoom.getExits().add(southExit);
+            northRoom.getExits().put("south", southExit);
             datastore.save(northRoom);
         }
 
