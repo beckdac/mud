@@ -35,7 +35,7 @@ public class Test {
             northRoom.setDescription("You are standing on a thin ledge that looks down into a great chasm with no bottom in sight.");
             MudItem key = itemNew("key", "generic key", "You see a plain metal key with no markings.", true, false, true);
             northRoom.addItem(key);
-            MudItem key = itemNew("key", "special key", "There is an inscription on the key that reads 'Red door'.", true, false, true);
+            key = itemNew("key", "special key", "There is an inscription on the key that reads 'Red door'.", true, false, true);
             northRoom.addItem(key);
             datastore.save(northRoom);
 
@@ -63,8 +63,10 @@ public class Test {
         System.out.println(currentRoom.getDescription());
 
         playerMove(player, "north");
+        playerGet(player, "key 2");
+        playerGet(player, "key");
         playerMove(player, "south");
-
+        playerDrop(player, "key");
         playerDrop(player, "key");
     }
 
@@ -107,5 +109,16 @@ public class Test {
         mudItem.setIsGetable(isGetable);
         mudItem.setIsContainer(isContainer);
         mudItem.setIsVisible(isVisible);
+        return mudItem;
+    }
+
+    private static MudItem playerGet(MudPlayer player, String name) {
+        MudRoom currentRoom = player.getRoom();
+        MudItem mudItem = currentRoom.getItem(name);
+        if (mudItem != null && mudItem.getIsGetable()) {
+            currentRoom.removeItem(name);
+            player.addItem(mudItem);
+        }
+        return mudItem;
     }
 }

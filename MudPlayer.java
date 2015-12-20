@@ -44,11 +44,12 @@ public class MudPlayer {
     }
 
     public void setRoom(MudRoom newRoom) {
-        room.getPlayers().remove(this);
+        if (room != null) // possible at initialization
+            room.removePlayer(this);
 
         room = newRoom;
         room.updateLastVisited();
-        room.getPlayers().add(this);
+        room.addPlayer(this);
     }
 
     public int addItem(MudItem mudItem) {

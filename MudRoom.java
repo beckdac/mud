@@ -67,9 +67,25 @@ public class MudRoom {
         return items;
     }
 
-    public List<MudPlayer> getPlayers() {
-        return players;
+    public boolean hasPlayer(MudPlayer player) {
+        if (players.contains(player))
+            return true;
+        return false;
     }
+
+    public void removePlayer(MudPlayer player) {
+        if (hasPlayer(player))
+            players.remove(player);
+    }
+
+    public void addPlayer(MudPlayer player) {
+        if (!hasPlayer(player))
+            players.add(player);
+    }
+
+//    public List<MudPlayer> getPlayers() {
+//        return players;
+//    }
 
     public Date getLastVisited() {
         return lastVisited;

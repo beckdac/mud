@@ -22,6 +22,7 @@ public final class MudItemMapHelper {
     // returns how many name collisions it resolved
     public static int addItem(Map<String, MudItem> items, MudItem item) {
         // put in the new item
+
         MudItem previousItem = items.put(item.getShortName(), item);
         // if we had a non-null return value there was a pre-existing item
         // with the same name; rename it with a space and a number, starting
@@ -30,7 +31,7 @@ public final class MudItemMapHelper {
         int suffix = 2;
         while (previousItem != null) {
             String nextName = previousItem.getShortName() + " " + Integer.toString(suffix++);
-            previousItem = items.put(nextName, item);
+            previousItem = items.put(nextName, previousItem);
         }
         return suffix - 2;
     }
@@ -52,19 +53,19 @@ public final class MudItemMapHelper {
             if (lastWord.matches("^\\d+$")) {
                 suffix = Integer.parseInt(lastWord) + 1;
             } 
-            if (suffix > 0) {
-                String previousName = name;
-                String nextName = shortName + " " + Integer.toString(suffix);
-                MudItem nextItem = items.get(nextName);
-                while (nextItem != null) {
-                    items.put(previousName, nextItem);
-                    items.remove(nextName);
-                    previousName = nextName;
-                    nextName = shortName + " " + Integer.toString(suffix++);
-                    nextItem = items.get(nextName);
-                }
-            } // else case can only happen on database inconsistency, transactions? or weird names
         }
+        if (suffix > 0) {
+            String previousName = name;
+            String nextName = shortName + " " + Integer.toString(suffix);
+            MudItem nextItem = items.get(nextName);
+            while (nextItem != null) {
+                items.put(previousName, nextItem);
+                items.remove(nextName);
+                previousName = nextName;
+                nextName = shortName + " " + Integer.toString(suffix++);
+                nextItem = items.get(nextName);
+            }
+        } // else case can only happen on database inconsistency, transactions? or weird names
         return item;
     }
 

@@ -16,7 +16,7 @@ java -cp "$CP" mud.Test
 mongo << EOF
 use mud
 db.rooms.find()
-//db.rooms.drop()
+db.rooms.drop()
 db.players.find()
-//db.players.drop()
+db.players.drop()
 EOF

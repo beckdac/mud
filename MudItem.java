@@ -25,7 +25,8 @@ public class MudItem {
     private Date lastUsed;              // the last time the item was manipulated
 
     public MudItem() {
-        fullName = "thing";
+        shortName = "thing";
+        fullName = "shapeless thing";
         description = "a shapeless fob without color";
         isGetable = true;
         isContainer = false;
@@ -36,27 +37,27 @@ public class MudItem {
     }
 
     public String getShortName() {
-        return fullName;
+        return shortName;
     }
 
-    public void setShortName(String name) {
-        fullName = name;
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
     }
 
     public String getFullName() {
         return fullName;
     }
 
-    public void setFullName(String name) {
-        fullName = name;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String desc) {
-        description = desc;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public boolean getIsGetable() {
