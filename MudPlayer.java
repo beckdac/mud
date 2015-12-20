@@ -27,6 +27,10 @@ public class MudPlayer {
         interactions = 0;
     }
 
+    public String getId() {
+        return id;
+    }
+
     public void setId(String ID) {
         id = ID;
     }
@@ -60,16 +64,24 @@ public class MudPlayer {
         return MudItemMapHelper.removeItem(inventory, item);
     }
 
+    public boolean hasItem(String item) {
+        return MudItemMapHelper.hasItem(inventory, item);
+    }
+
+    public MudItem getItemIfExists(String item) {
+        return MudItemMapHelper.getItemIfExists(inventory, item);
+    }
+
+    public int getInventorySize() {
+        return inventory.size();
+    }
+
     public boolean dropItem(String item) {
         MudItem mudItem = removeItem(item);
         if (mudItem == null)
             return false;
         room.addItem(mudItem);
         return true;
-    }
-
-    public Map<String, MudItem> getInventory() {
-        return inventory;
     }
 
     public Date getLastSeen() {

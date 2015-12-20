@@ -75,6 +75,12 @@ public final class MudItemMapHelper {
         return false;
     }
 
+    public static MudItem getItemIfExists(Map<String, MudItem> itemMap, String name) {
+        if (hasItem(itemMap, name))
+            return itemMap.get(name);
+        return null;
+    }
+
     public static boolean transferItem(String name, Map<String, MudItem> from, Map<String, MudItem> to) {
         MudItem item = from.get(name);
         if (item == null) {

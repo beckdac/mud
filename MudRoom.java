@@ -17,15 +17,24 @@ import java.util.HashMap;
 public class MudRoom {
     @Id private ObjectId id;
     private String description;
+    private String hint;
     private Date lastVisited;
     @Embedded("exits")
-    private Map<String, MudExit> exits = new HashMap<String, MudExit>();
+    private Map<String, MudExit> exits;
     @Embedded("items")
-    private Map<String, MudItem> items = new HashMap<String, MudItem>();
+    private Map<String, MudItem> items;
     @Reference
-    private List<MudPlayer> players = new ArrayList<MudPlayer>();
+    private List<MudPlayer> players;
 
     public MudRoom() {
+        hint = "No hint available.  Keep looking, searching and using!";
+        exits = new HashMap<String, MudExit>();
+        items = new HashMap<String, MudItem>();
+        players = new ArrayList<MudPlayer>();
+    }
+
+    public ObjectId getId() {
+        return id;
     }
 
     public void setId(ObjectId ID) {
@@ -36,8 +45,27 @@ public class MudRoom {
         return description;
     }
 
-    public void setDescription(String desc) {
-        description = desc;
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getHint() {
+        return hint;
+    }
+
+    public void setHint(String hint) {
+        this.hint = hint;
+    }
+
+    public boolean hasExit(String name) {
+        MudExit mudExit = exits.get(name);
+        if (mudExit == null)
+            return false;
+        return true;
+    }
+
+    public MudExit getExitIfExists(String name) {
+        return exits.get(name);
     }
 
     public MudRoom getExitDestination(String name) {
@@ -51,10 +79,6 @@ public class MudRoom {
         return exits;
     }
 
-    public MudItem getItem(String name) {
-        return items.get(name);
-    }
-
     public int addItem(MudItem mudItem) {
         return MudItemMapHelper.addItem(items, mudItem);
     }
@@ -63,8 +87,12 @@ public class MudRoom {
         return MudItemMapHelper.removeItem(items, item);
     }
 
-    public Map<String, MudItem> getItems() {
-        return items;
+    public boolean hasItem(String item) {
+        return MudItemMapHelper.hasItem(items, item);
+    }
+
+    public MudItem getItemIfExists(String item) {
+        return MudItemMapHelper.getItemIfExists(items, item);
     }
 
     public boolean hasPlayer(MudPlayer player) {
