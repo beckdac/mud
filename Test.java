@@ -29,11 +29,13 @@ public class Test {
             startRoom = new MudRoom();
             startRoom.setId(MUD_ROOMID_START);
             startRoom.setDescription("You are in a cold and damp stone room.  The only light is coming from a crack in the ceiling above.");
+            MudItem key = itemNew("key", "fake skeleton key", "You see a key with a skull on it.  It looks warn out.", true, false, true);
+            startRoom.addItem(key);
             datastore.save(startRoom);
 
             MudRoom northRoom = new MudRoom();
             northRoom.setDescription("You are standing on a thin ledge that looks down into a great chasm with no bottom in sight.");
-            MudItem key = itemNew("key", "generic key", "You see a plain metal key with no markings.", true, false, true);
+            key = itemNew("key", "generic key", "You see a plain metal key with no markings.", true, false, true);
             northRoom.addItem(key);
             key = itemNew("key", "special key", "There is an inscription on the key that reads 'Red door'.", true, false, true);
             northRoom.addItem(key);
@@ -68,6 +70,7 @@ public class Test {
         playerMove(player, "south");
         playerDrop(player, "key");
         playerDrop(player, "key");
+        playerGet(player, "key 2");
     }
 
     private static MudPlayer playerNew() {
@@ -118,6 +121,8 @@ public class Test {
         if (mudItem != null && mudItem.getIsGetable()) {
             currentRoom.removeItem(name);
             player.addItem(mudItem);
+            datastore.save(player);
+            datastore.save(currentRoom);
         }
         return mudItem;
     }
