@@ -50,7 +50,7 @@ public class Test {
         MudPlayer player = datastore.get(MudPlayer.class, userId);
         if (player == null) {
             System.out.println("Ahh, a new player.  Welcome.");
-            player = newPlayer();
+            player = playerNew();
         }
         MudRoom currentRoom = player.getRoom();
         currentRoom.updateLastVisited();
@@ -59,8 +59,8 @@ public class Test {
         datastore.save(currentRoom);
         System.out.println(currentRoom.getDescription());
 
-        movePlayer(player, "north");
-        movePlayer(player, "south");
+        playerMove(player, "north");
+        playerMove(player, "south");
 
         playerDrop(player, "key");
     }

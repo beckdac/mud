@@ -1,16 +1,12 @@
 package mud;
 
 import com.mongodb.MongoClient;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.FindIterable;
-import com.mongodb.Block;
-import org.bson.Document;
 import org.mongodb.morphia.Morphia;
+import org.mongodb.morphia.Datastore;
 
-import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Sorts.ascending;
-import static java.util.Arrays.asList;
+import org.bson.types.ObjectId;
+
+import java.util.List;
 
 import com.amazon.speech.slu.Intent;
 import com.amazon.speech.speechlet.LaunchRequest;
@@ -28,23 +24,62 @@ public class MudManager {
 
     private static final String MONGO_DATABASE = "mud";
 
+    private static final ObjectId MUD_ROOMID_START     = new ObjectId("000000000000000000000000");
+
     private final Morphia morphia;
     private final Datastore datastore;
 
-    public MudManager(final MongoClient mongoClient) {
+    private final MudPlayer player;
+
+    private String speechOutput = "", repromptText = "";
+
+    public MudManager(final MongoClient mongoClient, Session session) {
         morphia = new Morphia();
         morphia.map(MudPlayer.class).map(MudRoom.class).map(MudItem.class).map(MudExit.class);
-        datastore = morphia.createDatastore(MongoClient(), MONGO_DATABASE);
+        datastore = morphia.createDatastore(new MongoClient(), MONGO_DATABASE);
         datastore.ensureIndexes();
+
+        player = datastore.get(MudPlayer.class, userId);
+        if (player == null) {
+            log.info("new player, Id = {}", session.userId);
+            MudPlayer player = new MudPlayer();
+            player.setId(userId);
+            player.setRoom(datastore.get(MudRoom.class, MUD_ROOMID_START));
+    	    speechOutput += "Ah, a new player.  Welcome.  For instructions, say 'help me'.";
+        } else {
+            speechOutput += "Welcome back to the Mud.";
+        }
+
+        // login ritual
+        MudRoom currentRoom = player.getRoom();
+        currentRoom.updateLastVisited();
+        player.updateLastSeen();
+        datastore.save(player);
+        datastore.save(currentRoom);
+        log.info("player {} in {}", player.getId(), currentRoom.getId());
     }
 
-    private MudPlayer getPlayer(String userId) {
-        MudPlayer player;
+    private static boolean playerMove(MudPlayer player, String exit) {
+        MudRoom currentRoom = player.getRoom();
+        
+        if (player.useExit(exit)) {
+            datastore.save(player);
+            datastore.save(currentRoom);
+            currentRoom = player.getRoom();
+            datastore.save(currentRoom);
+            System.out.println(currentRoom.getDescription());
+            return true;
+        }
+        return false;
+    }
 
-        FindIterable<Document> cursor = player_collection.find(new Document("_id", userId)).limit(1);
-        Document pDoc = cursor.first();
-
-        return player;
+    private static boolean playerDrop(MudPlayer player, String item) {
+        if (player.dropItem(item)) {
+            datastore.save(player);
+            datastore.save(player.getRoom());
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -57,20 +92,13 @@ public class MudManager {
      * @return response for launch request
      */
     public SpeechletResponse getLaunchResponse(LaunchRequest request, Session session) {
-        String speechOutput = "", repromptText = "";
-        MudPlayer player = getPlayer(session.getUser().getUserId());
-
-        if (player == null) {
-    	    speechOutput = "Welcome to the Mud. I see this is your first time here, for instructions, say 'help me'. ";
-	    player = newPlayer(session);
-        } else {
-            speechOutput = "Welcome back to the Mud.";
-        }
 
         speechOutput += "You have " + player.inventory.size() + " items in your inventory.";
-        // add the room description to the output
+        speechOutput += player.getRoom().getDescription();
+        // This next line should come from a randomized list of questions with the same 
+        // intent for flavor
         speechOutput += "What do you want to do now?";
-        repromptText = "For instructions, please say help me.";
+        repromptText = "For instructions, please say 'help me'.";
 
         return getAskSpeechletResponse(speechOutput, repromptText);
     }

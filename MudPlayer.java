@@ -51,7 +51,7 @@ public class MudPlayer {
         MudItem mudItem = inventory.get(item);
         if (mudItem == null)
             return null;
-        items.remove(mudItem);
+        inventory.remove(item);
         return mudItem;
     }
 
@@ -59,7 +59,7 @@ public class MudPlayer {
         MudItem mudItem = removeItem(item);
         if (mudItem == null)
             return false;
-        room.getItems().add(item, mudItem);
+        room.getItems().put(item, mudItem);
         return true;
     }
 

@@ -25,10 +25,10 @@ public class MudSpeechlet implements Speechlet {
     private MongoClient mongoClient;
     private MudManager mudManager;    
 
-    private void initializeManager() {
+    private void initializeManager(final Session session) {
     	if (mongoClient == null) {
         	mongoClient = new MongoClient();
-        	mudManager = new MudManager(mongoClient);
+        	mudManager = new MudManager(mongoClient, session);
         	log.info("initializeManager: connected to mongoDB");
     	}
     }
@@ -39,7 +39,7 @@ public class MudSpeechlet implements Speechlet {
         log.info("onSessionStarted requestId={}, sessionId={}", request.getRequestId(),
                 session.getSessionId());
 
-        initializeManager();
+        initializeManager(session);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class MudSpeechlet implements Speechlet {
         log.info("onIntent requestId={}, sessionId={}", request.getRequestId(),
                 session.getSessionId());
 
-        initializeManager();
+        initializeManager(session);
 
         Intent intent = request.getIntent();
         String intentName = (intent != null) ? intent.getName() : null;
