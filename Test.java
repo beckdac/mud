@@ -52,15 +52,46 @@ public class Test {
             System.out.println("Ahh, a new player.  Welcome.");
             player = newPlayer();
         }
+        MudRoom currentRoom = player.getRoom();
+        currentRoom.updateLastVisited();
         player.updateLastSeen();
         datastore.save(player);
-        System.out.println(player.getRoom().getDescription());
+        datastore.save(currentRoom);
+        System.out.println(currentRoom.getDescription());
+
+        movePlayer(player, "north");
+        movePlayer(player, "south");
+
+        playerDrop(player, "key");
     }
 
-    private static MudPlayer newPlayer() {
-            MudPlayer player = new MudPlayer();
-            player.setId(userId);
-            player.setRoom(datastore.get(MudRoom.class, MUD_ROOMID_START));
-            return player;
+    private static MudPlayer playerNew() {
+        MudPlayer player = new MudPlayer();
+        player.setId(userId);
+        player.setRoom(datastore.get(MudRoom.class, MUD_ROOMID_START));
+        return player;
+    }
+
+    private static boolean playerMove(MudPlayer player, String exit) {
+        MudRoom currentRoom = player.getRoom();
+        
+        if (player.useExit(exit)) {
+            datastore.save(player);
+            datastore.save(currentRoom);
+            currentRoom = player.getRoom();
+            datastore.save(currentRoom);
+            System.out.println(currentRoom.getDescription());
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean playerDrop(MudPlayer player, String item) {
+        if (player.dropItem(item)) {
+            datastore.save(player);
+            datastore.save(player.getRoom());
+            return true;
+        }
+        return false;
     }
 }

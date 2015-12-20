@@ -31,8 +31,36 @@ public class MudPlayer {
         return room;
     }
 
+    public boolean useExit(String exit) {
+        MudRoom dest = room.getExitDestination(exit);
+        if (dest == null)
+            return false;
+        setRoom(dest);
+        return true;
+    }
+
     public void setRoom(MudRoom newRoom) {
+        room.getPlayers().remove(this);
+
         room = newRoom;
+        room.updateLastVisited();
+        room.getPlayers().add(this);
+    }
+
+    public MudItem removeItem(String item) {
+        MudItem mudItem = inventory.get(item);
+        if (mudItem == null)
+            return null;
+        items.remove(mudItem);
+        return mudItem;
+    }
+
+    public boolean dropItem(String item) {
+        MudItem mudItem = removeItem(item);
+        if (mudItem == null)
+            return false;
+        room.getItems().add(item, mudItem);
+        return true;
     }
 
     public Map<String, MudItem> getInventory() {

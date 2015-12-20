@@ -41,7 +41,10 @@ public class MudRoom {
     }
 
     public MudRoom getExitDestination(String name) {
-        return exits.get(name).getDestination();
+        MudExit exit = exits.get(name);
+        if (exit != null)
+            return exits.get(name).getDestination();
+        return null;
     }
 
     public Map<String, MudExit> getExits() {
@@ -54,6 +57,10 @@ public class MudRoom {
 
     public Map<String, MudItem> getItems() {
         return items;
+    }
+
+    public List<MudPlayer> getPlayers() {
+        return players;
     }
 
     public Date getLastVisited() {
