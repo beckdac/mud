@@ -6,6 +6,8 @@ import org.mongodb.morphia.annotations.Reference;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 @Embedded
 public class MudItem {
@@ -14,8 +16,8 @@ public class MudItem {
     private String description;         // what is seen then the player looks at the item
     private boolean isGetable;          // can the item be taken or gotten from wherever it is
     private boolean isContainer;        // can the item contain stuff
-    @Reference
-    private List<MudItem> contents;     // contents of the container if above is true
+    @Embedded("contents")
+    private Map<String, MudItem> contents;// contents of the container if above is true
     private boolean isVisible;          // if this is is false, then only players in the visibleTo array can see this item
     @Reference
     private List<MudPlayer> visibleTo;  // if not visible, list of who can see it
@@ -27,7 +29,7 @@ public class MudItem {
         description = "a shapeless fob without color";
         isGetable = true;
         isContainer = false;
-        contents = new ArrayList<MudItem>();
+        contents = new HashMap<String, MudItem>();
         isVisible = true;
         visibleTo = new ArrayList<MudPlayer>();
         tags = new ArrayList<String>();
@@ -76,21 +78,21 @@ public class MudItem {
     public boolean hasContent(String item) {
         if (!isContainer)
             return false;
-        if (contents.contains(item))
-            return true;
+        return MudItemMapHelper.hasItem(contents, item);
     }
 
-    public boolean addContent(String name, MudItem item) {
+    public boolean addContent(MudItem item) {
         if (!isContainer)
             return false;
-        // go through 
-        MudItem previousItem = contents.put(name, item);
-        int suffix = 2;
-        String nextName = name + " " + Integer.toString(suffix);
-        while (previousItem != null) {
-        }
-        for (int i = 2; 
+        MudItemMapHelper.addItem(contents, item);
         updateLastUsed();
+        return true;
+    }
+
+    public MudItem removeContent(String name) {
+        if (!isContainer)
+            return null;
+        return MudItemMapHelper.removeItem(contents, name);
     }
 
     public boolean getIsVisible() {
@@ -119,7 +121,7 @@ public class MudItem {
     }
 
     public void addTagIfNotExists(String tag) {
-        if (!tags.contain(tag))
+        if (!tags.contains(tag))
             tags.add(tag);
     }
 

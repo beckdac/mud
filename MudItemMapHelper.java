@@ -1,6 +1,6 @@
 package mud;
 
-import java.util.List;
+import java.util.Map;
 
 public final class MudItemMapHelper {
 
@@ -20,7 +20,7 @@ public final class MudItemMapHelper {
 
     // add an item to the list and resolve any name conflicts
     // returns how many name collisions it resolved
-    public static int addItem(Map<MudItem> items, MudItem item) {
+    public static int addItem(Map<String, MudItem> items, MudItem item) {
         // put in the new item
         MudItem previousItem = items.put(item.getShortName(), item);
         // if we had a non-null return value there was a pre-existing item
@@ -36,10 +36,10 @@ public final class MudItemMapHelper {
     }
 
     // remove an item from the list and pop names off the stack
-    public static boolean removeItem(Map<MudItem> items, String name) {
+    public static MudItem removeItem(Map<String, MudItem> items, String name) {
         MudItem item = items.get(name);
         if (item == null)
-            return false;
+            return null;
 
         int suffix = 0;
         String shortName = item.getShortName();
@@ -49,8 +49,8 @@ public final class MudItemMapHelper {
         else {
             String words[] = name.split(" ");
             String lastWord = words[words.length - 1];
-            if (lastWord.matches("^\d+$") {
-                suffix = Integer.parse(lastWord) + 1;
+            if (lastWord.matches("^\\d+$")) {
+                suffix = Integer.parseInt(lastWord) + 1;
             } 
             if (suffix > 0) {
                 String previousName = name;
@@ -65,11 +65,17 @@ public final class MudItemMapHelper {
                 }
             } // else case can only happen on database inconsistency, transactions? or weird names
         }
-            
+        return item;
+    }
+
+    public static boolean hasItem(Map<String, MudItem> itemMap, String name) {
+        if (itemMap.containsKey(name))
+            return true;
+        return false;
     }
 
     public static boolean transferItem(String name, Map<String, MudItem> from, Map<String, MudItem> to) {
-        MudItem item = from.getItems().get(name);
+        MudItem item = from.get(name);
         if (item == null) {
             return false;
         }

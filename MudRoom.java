@@ -55,6 +55,14 @@ public class MudRoom {
         return items.get(name);
     }
 
+    public int addItem(MudItem mudItem) {
+        return MudItemMapHelper.addItem(items, mudItem);
+    }
+
+    public MudItem removeItem(String item) {
+        return MudItemMapHelper.removeItem(items, item);
+    }
+
     public Map<String, MudItem> getItems() {
         return items;
     }

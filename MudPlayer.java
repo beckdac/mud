@@ -51,21 +51,19 @@ public class MudPlayer {
         room.getPlayers().add(this);
     }
 
-    public int addItem(MudItem item) {
+    public int addItem(MudItem mudItem) {
+        return MudItemMapHelper.addItem(inventory, mudItem);
+    }
 
     public MudItem removeItem(String item) {
-        MudItem mudItem = inventory.get(item);
-        if (mudItem == null)
-            return null;
-        inventory.remove(item);
-        return mudItem;
+        return MudItemMapHelper.removeItem(inventory, item);
     }
 
     public boolean dropItem(String item) {
         MudItem mudItem = removeItem(item);
         if (mudItem == null)
             return false;
-        room.getItems().put(item, mudItem);
+        room.addItem(mudItem);
         return true;
     }
 

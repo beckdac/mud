@@ -12,7 +12,6 @@ public class Test {
     private static final String MONGO_DATABASE = "mud";
 
     private static final ObjectId MUD_ROOMID_START     = new ObjectId("000000000000000000000000");
-    private static final ObjectId MUD_ROOMID_GRAVEYARD = new ObjectId("000000000000000000000001");
 
     private static final String userId = "alexauser";
 
@@ -34,6 +33,10 @@ public class Test {
 
             MudRoom northRoom = new MudRoom();
             northRoom.setDescription("You are standing on a thin ledge that looks down into a great chasm with no bottom in sight.");
+            MudItem key = itemNew("key", "generic key", "You see a plain metal key with no markings.", true, false, true);
+            northRoom.addItem(key);
+            MudItem key = itemNew("key", "special key", "There is an inscription on the key that reads 'Red door'.", true, false, true);
+            northRoom.addItem(key);
             datastore.save(northRoom);
 
             MudExit northExit = new MudExit();
@@ -93,5 +96,16 @@ public class Test {
             return true;
         }
         return false;
+    }
+
+    private static MudItem itemNew(String shortName, String fullName, String description, 
+        boolean isGetable, boolean isContainer, boolean isVisible) {
+        MudItem mudItem = new MudItem();
+        mudItem.setShortName(shortName);
+        mudItem.setFullName(fullName);
+        mudItem.setDescription(description);
+        mudItem.setIsGetable(isGetable);
+        mudItem.setIsContainer(isContainer);
+        mudItem.setIsVisible(isVisible);
     }
 }

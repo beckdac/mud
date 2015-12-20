@@ -4,6 +4,8 @@ import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Reference;
 
 import java.util.Date;
+import java.util.List;
+import java.util.ArrayList;
 
 @Embedded
 public class MudExit {
@@ -20,9 +22,11 @@ public class MudExit {
 
     public MudExit() {
         description = "You can't see to well that way.";
-        lockable = false;
+        isLockable = false;
         isLocked = false;
         isVisible = true;
+        visibleTo = new ArrayList<MudPlayer>();
+        tags = new ArrayList<String>();
     }
 
     public MudRoom getDestination() {
@@ -83,7 +87,7 @@ public class MudExit {
     }
 
     public void addTagIfNotExists(String tag) {
-        if (!tags.contain(tag))
+        if (!tags.contains(tag))
             tags.add(tag);
     }
 
