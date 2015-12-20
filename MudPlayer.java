@@ -15,12 +15,16 @@ import java.util.HashMap;
 public class MudPlayer {
     @Id private String id;
     private Date lastSeen;
+    int sessions;
+    int interactions;
     @Reference
     private MudRoom room;
     @Embedded("inventory")
     private Map<String, MudItem> inventory = new HashMap<String, MudItem>();
 
     public MudPlayer() {
+        sessions = 0;
+        interactions = 0;
     }
 
     public void setId(String ID) {
@@ -46,6 +50,8 @@ public class MudPlayer {
         room.updateLastVisited();
         room.getPlayers().add(this);
     }
+
+    public int addItem(MudItem item) {
 
     public MudItem removeItem(String item) {
         MudItem mudItem = inventory.get(item);

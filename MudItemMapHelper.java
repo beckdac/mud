@@ -20,9 +20,9 @@ public final class MudItemMapHelper {
 
     // add an item to the list and resolve any name conflicts
     // returns how many name collisions it resolved
-    public static int addItem(List<MudItem>, MudItem item) {
+    public static int addItem(Map<MudItem> items, MudItem item) {
         // put in the new item
-        MudItem previousItem = contents.put(item.getShortName(), item);
+        MudItem previousItem = items.put(item.getShortName(), item);
         // if we had a non-null return value there was a pre-existing item
         // with the same name; rename it with a space and a number, starting
         // at 2, rename any previous item with that name with incremental
@@ -30,21 +30,51 @@ public final class MudItemMapHelper {
         int suffix = 2;
         while (previousItem != null) {
             String nextName = previousItem.getShortName() + " " + Integer.toString(suffix++);
-            previousItem = contents.put(nextName, item);
+            previousItem = items.put(nextName, item);
         }
         return suffix - 2;
     }
 
     // remove an item from the list and pop names off the stack
+    public static boolean removeItem(Map<MudItem> items, String name) {
+        MudItem item = items.get(name);
+        if (item == null)
+            return false;
 
-    public static boolean transferItem(Map<String, MudItem> from, Map<String, MudItem> to, String name) {
+        int suffix = 0;
+        String shortName = item.getShortName();
+        items.remove(name);
+        if (shortName.equals(name))
+            suffix = 2;
+        else {
+            String words[] = name.split(" ");
+            String lastWord = words[words.length - 1];
+            if (lastWord.matches("^\d+$") {
+                suffix = Integer.parse(lastWord) + 1;
+            } 
+            if (suffix > 0) {
+                String previousName = name;
+                String nextName = shortName + " " + Integer.toString(suffix);
+                MudItem nextItem = items.get(nextName);
+                while (nextItem != null) {
+                    items.put(previousName, nextItem);
+                    items.remove(nextName);
+                    previousName = nextName;
+                    nextName = shortName + " " + Integer.toString(suffix++);
+                    nextItem = items.get(nextName);
+                }
+            } // else case can only happen on database inconsistency, transactions? or weird names
+        }
+            
+    }
+
+    public static boolean transferItem(String name, Map<String, MudItem> from, Map<String, MudItem> to) {
         MudItem item = from.getItems().get(name);
         if (item == null) {
             return false;
         }
-        addItem(to, item);
-        from.getItems().remove(itemKey);
-        to.getItems().put(item, fromItem);
+        MudItemMapHelper.addItem(to, item);
+        MudItemMapHelper.removeItem(from, name);
 
         return true;
     }
