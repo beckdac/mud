@@ -17,6 +17,9 @@ import com.amazon.speech.ui.PlainTextOutputSpeech;
 import com.amazon.speech.ui.Reprompt;
 import com.amazon.speech.ui.SimpleCard;
 
+// the MudManager essentially is the glue between the data access objects / mongodb
+// and the alexa skill handler
+
 public class MudManager {
     private static final String SLOT_ACTION = "Action";
     private static final String SLOT_ITEM = "Item";
@@ -26,12 +29,28 @@ public class MudManager {
 
     private static final ObjectId MUD_ROOMID_START     = new ObjectId("000000000000000000000000");
 
+    private static <T> T randomFrom(T... items) { return items[new Random().nextInt(items.length)]; }
+    private static final String[] WHAT_NEXT_Q_LIST = {
+            "What do you want to do now?",
+            "Tell me what you want to do next?",
+            "What do you want to do next?",
+            "OK, what next?",
+            "What now?"
+        };
+    private static final String[] REPROMPT_Q_LIST = {
+            "Still there? Why not try saying 'inventory' for something to 'use'.",
+            "For instructions, please say 'help me'.",
+            "You can look again, take some other action, ask for help or a hint.",
+            "Why not try taking another look around or doing a search?";
+        };
+
     private final Morphia morphia;
     private final Datastore datastore;
 
     private final MudPlayer player;
 
-    private String speechOutput = "", repromptText = "";
+    private String speechOutput;
+    private String reprmoptText;
 
     public MudManager(final MongoClient mongoClient, Session session) {
         morphia = new Morphia();
@@ -57,6 +76,10 @@ public class MudManager {
         datastore.save(player);
         datastore.save(currentRoom);
         log.info("player {} in {}", player.getId(), currentRoom.getId());
+
+        speechOutput = "";
+        repromptText = "";
+        // ready to go
     }
 
     private static boolean playerMove(MudPlayer player, String exit) {
@@ -97,8 +120,8 @@ public class MudManager {
         speechOutput += player.getRoom().getDescription();
         // This next line should come from a randomized list of questions with the same 
         // intent for flavor
-        speechOutput += "What do you want to do now?";
-        repromptText = "For instructions, please say 'help me'.";
+        speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
+        repromptText += randomFrom(REPROMPT_Q_LIST);
 
         return getAskSpeechletResponse(speechOutput, repromptText);
     }
@@ -108,7 +131,7 @@ public class MudManager {
 
         String speechOutput, repromptText;
         speechOutput = player.room().description();
-        repromptText = "You can look again, take some other action, ask for help or a hint.";
+        repromptText += randomFrom(REPROMPT_Q_LIST);
 
         return getAskSpeechletResponse(speechOutput, repromptText);
     }
@@ -118,6 +141,7 @@ public class MudManager {
 
 	String speechOutput, repromptText;
         speechOutput = player.room().hint();
+        repromptText = "You can look again, take some other action, ask for help or a hint.";
         repromptText = "Why not try taking another look around or doing a search?";
 
         return getAskSpeechletResponse(speechOutput, repromptText);
@@ -202,6 +226,10 @@ public class MudManager {
         repromptSpeech.setText(repromptText);
         Reprompt reprompt = new Reprompt();
         reprompt.setOutputSpeech(repromptSpeech);
+
+        // reset these for the next interaction
+        speechOutput = "";
+        repromptText = "";
 
         return SpeechletResponse.newAskResponse(speech, reprompt, card);
     }
