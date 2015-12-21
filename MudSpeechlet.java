@@ -65,20 +65,15 @@ public class MudSpeechlet implements Speechlet {
         switch (intentName) {
             case "LookIntent":
                 return mudManager.getLookIntentResponse(intent, session);
-                break;
             case "HintIntent":
                 return mudManager.getHintIntentResponse(intent, session);
-                break;
             case "AMAZON.HelpIntent":
                 return mudManager.getHelpIntentReponse(intent, session);
-                break;
             case "AMAZON.StopIntent":
             case "AMAZON.CancelIntent":
                 return mudManager.getExitIntentResponse(intent, session);
-                break;
             default:
                 throw new SpeechletException("Invalid intent:" + intent.getName());
-                break;
         }
     }
 
