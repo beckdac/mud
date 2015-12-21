@@ -32,7 +32,7 @@ public class MudManager {
     private static final String SLOT_ACTION = "Action";
     private static final String SLOT_ITEM = "Item";
     private static final String SLOT_EXIT = "Exit";
-    private static final String SLOT_WHERE = "Where";
+    private static final String SLOT_OBJECTSPEC = "ObjectSpec";
 
     private static final String MONGO_DATABASE = "mud";
 
@@ -113,29 +113,6 @@ public class MudManager {
         return player.getRoom().getItemIfExists(item);
     }
 
-/*
-    private boolean transferItem(Map<String, MudItem> from, Map<String, MudItem> to, String item) {
-        fromItem = from.getItems().get(item);
-        if (fromItem == null) {
-            speechOutput += "Sorry.  I was unable to find a " + item + ".";
-            return false;
-        }
-        from.getItems().remove(item);
-        to.getItems().put(item, fromItem);
-        return true;
-    }
-
-    private boolean playerDrop(String item) {
-        currentRoom = player.getRoom();
-        if (transferItem(player.getItems(), currentRoom.items, item)) {
-            datastore.save(player);
-            datastore.save(currentRoom);
-            return true;
-        }
-        return false;
-    }
-*/
-
     /**
      * Creates and returns response for Launch request.
      *
@@ -155,26 +132,26 @@ public class MudManager {
     }
 
     public SpeechletResponse getLookIntentResponse(Intent intent, Session session) {
-        Slot whereSlot = intent.getSlot(SLOT_WHERE);
-        if (whereSlot != null && whereSlot.getValue() != null) {
-            String whereValue = whereSlot.getValue();
+        Slot objetspecSlot = intent.getSlot(SLOT_OBJECTSPEC);
+        if (objetspecSlot != null && objetspecSlot.getValue() != null) {
+            String objectSpec = objetspecSlot.getValue();
             String playerSpeechOutput = "", roomSpeechOutput = "", exitSpeechOutput = "";
             int found = 0;
             // go through precedence chain looking for something matching the where slot
             // player
-            MudItem item = playerItemSearch(whereValue);
+            MudItem item = playerItemSearch(objectSpec);
             if (item != null && item.isVisibleTo(player)) {
                 ++found;
                 playerSpeechOutput = item.getDescription();
             }
             // room
-            item = roomItemSearch(whereValue);
+            item = roomItemSearch(objectSpec);
             if (item != null && item.isVisibleTo(player)) {
                 ++found;
                 roomSpeechOutput = item.getDescription();
             }
             // exits
-            MudExit exit = player.getRoom().getExitIfExists(whereValue);
+            MudExit exit = player.getRoom().getExitIfExists(objectSpec);
             if (exit != null && exit.isVisibleTo(player)) {
                 ++found;
                 exitSpeechOutput += exit.getDestination().getDescription();
@@ -190,7 +167,7 @@ public class MudManager {
                 else
                     speechOutput += exitSpeechOutput;
             } else {
-                speechOutput += String.format("I found %d items matching '%s'.", found, whereValue);
+                speechOutput += String.format("I found %d items matching '%s'.", found, objectSpec);
                 if (playerSpeechOutput != null) {
                     speechOutput += "In your inventory: " + playerSpeechOutput;
                 }
