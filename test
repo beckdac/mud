@@ -22,7 +22,7 @@ clean=1
 if [ "$clean" -eq "1" ]
 then
     echo "wiping database"
-    ./db_drop_json
+    ./db_drop
 fi
 
 java -cp "$CP" mud.Test
