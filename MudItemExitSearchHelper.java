@@ -36,14 +36,14 @@ public final class MudItemExitSearchHelper {
 
     public static MudItemExitSearchResult MudItemExitSearch(MudPlayer player, String name,
             Boolean isGetable, Boolean isContainer, Boolean isVisible, Boolean isUseable,
-            Boolean hasUsesLeft, Boolean isIngestable, String hasTag, Boolean includePlayer,
-            Boolean includeRoom, Boolean includeExits, Boolean includeFullName) {
+            Boolean hasUsesLeft, Boolean isIngestable, String hasTag, boolean includePlayer,
+            boolean includeRoom, boolean includeExits, boolean includeFullName) {
 
         MudItemExitSearchResult result = new MudItemExitSearchResult();
         MudRoom room = player.getRoom();
         MudItem mudItem;
 
-        if (includePlayer != null && includePlayer) {
+        if (includePlayer) {
             mudItem = player.getItemIfExists(name);
             if (isItemMatch(player, mudItem, isGetable, isContainer, isVisible, isUseable,
                     hasUsesLeft, isIngestable, hasTag))
@@ -60,7 +60,7 @@ public final class MudItemExitSearchHelper {
             }
         }
 
-        if (includeRoom != null && includeRoom) {
+        if (includeRoom) {
             mudItem = room.getItemIfExists(name);
             if (isItemMatch(player, mudItem, isGetable, isContainer, isVisible, isUseable,
                     hasUsesLeft, isIngestable, hasTag))
@@ -77,7 +77,7 @@ public final class MudItemExitSearchHelper {
             }
         }
 
-        if (includeExits != null && includeExits) {
+        if (includeExits) {
             MudExit mudExit = room.getExitIfExists(name);
             boolean addExit = true;
             if (isGetable != null && isGetable == true)
