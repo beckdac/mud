@@ -27,7 +27,8 @@ public class MudRoom {
     private HashSet<MudPlayer> players;
 
     public MudRoom() {
-        hint = "No hint available.  Keep looking, searching and using!";
+        description = "Nothing to see here.";
+        hint = "No hint available.";
         exits = new HashMap<String, MudExit>();
         items = new HashMap<String, MudItem>();
         players = new HashSet<MudPlayer>();

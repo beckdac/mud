@@ -74,7 +74,8 @@ public class MudManager {
 
     public MudManager(final MongoClient mongoClient, Session session) {
         morphia = new Morphia();
-        morphia.map(MudPlayer.class).map(MudRoom.class).map(MudItem.class).map(MudExit.class);
+        morphia.map(MudPlayer.class).map(MudRoom.class).map(MudItem.class).map(MudExit.class)
+                .map(MudLock.class).map(MudAccessControl.class);
         datastore = morphia.createDatastore(new MongoClient(), MONGO_DATABASE);
         datastore.ensureIndexes();
 

@@ -24,11 +24,13 @@ public class MudPlayer {
     private MudRoom room;
     @Embedded("inventory")
     private Map<String, MudItem> inventory = new HashMap<String, MudItem>();
+    public MudTags tags;
 
     public MudPlayer() {
         sessions = 0;
         interactions = 0;
         isNew = true;
+        tags = new MudTags();
     }
 
     public String getId() {

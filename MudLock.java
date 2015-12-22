@@ -5,25 +5,25 @@ import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Reference;
 
+import org.bson.types.ObjectId;
+
 import java.util.Date;
 import java.util.HashSet;
 
 @Entity("locks")
 public class MudLock {
+    @Id private ObjectId id;
     private String description;
-    private boolean isSharedLock;       // determines if the door lock state is share between all players
-    private boolean isLocked;           // if sharedlockstate by all players this contols the lock
-    @Reference
-    private HashSet<MudPlayer> unlockedTo; // if player in this list then the door is unlocked to them
-    private HashSet<String> tags;       // functionality tags
+    public final MudAccessControl access;     // lock / unlock
+    private MudAccessControl visibility;      // can the lock be seen
+    public final MudTags tags;                // functionality tags
     private Date lastUsed;
     private int timesUsed;
 
     public MudLock() {
-        isSharedLock = false;
-        isLocked = true;
-        unlockedTo = new HashSet<MudPlayer>();
-        tags = new HashSet<String>();
+        access = new MudAccessControl();
+        visibility = new MudAccessControl();
+        tags = new MudTags();
     }
 
     public String getDescription() {
@@ -34,48 +34,12 @@ public class MudLock {
         this.description = description;
     }
 
-    public boolean getIsSharedLock() {
-        return isSharedLock;
+    public boolean getIsLockedTo(MudPlayer player) {
+        return access.getIsRestrictedTo(player);
     }
 
-    public void setIsSharedLock(boolean isSharedLock) {
-        this.isSharedLock = isSharedLock;
-    }
-
-    public boolean getIsLocked(MudPlayer player) {
-        if (isSharedLock)
-            return isLocked;
-        if (isLocked && unlockedTo.contains(player))
-            return false;
-        return true;
-    }
-
-    public void setIsLocked(MudPlayer player, boolean isLocked) {
-        if (isSharedLock)
-            this.isLocked = isLocked;
-        else {
-            if (isLocked) {
-                if (unlockedTo.contains(player))
-                    unlockedTo.remove(player);
-            } else {
-                if (!unlockedTo.contains(player))
-                    unlockedTo.add(player);
-            }
-        }
-    }
-
-    public boolean hasTag(String tag) {
-        if (tags.contains(tag))
-            return true;
-        return false;
-    }
-
-    public void addTag(String tag) {
-        tags.add(tag);
-    }
-
-    public void removeTagIfExists(String tag) {
-        tags.remove(tag);
+    public boolean getIsVisibleTo(MudPlayer player) {
+        return !visibility.getIsRestrictedTo(player);
     }
 
     public Date getLastUsed() {
@@ -84,5 +48,13 @@ public class MudLock {
 
     public void updateLastUsed() {
         lastUsed = new Date();
+    }
+
+    public void incrementTimesUsed() {
+        timesUsed++;
+    }
+
+    public int getTimesUsed() {
+        return timesUsed;
     }
 }

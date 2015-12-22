@@ -18,13 +18,13 @@ public class MudItem {
     private boolean isContainer;        // can the item contain stuff
     @Embedded("contents")
     private Map<String, MudItem> contents;// contents of the container if above is true
-    private boolean isVisible;          // if this is is false, then only players in the visibleTo array can see this item
     @Reference
-    private HashSet<MudPlayer> visibleTo;  // if not visible, list of who can see it
+    private MudLock lock;               // if not null, then this item is locked
+    public final MudAccessControl visibility; // can this be seen
     private boolean isUsable;           // can be invoked in a use context
     private int usesLeft;               // how many more times can this be used, -1 = infinite, also how many ingests left, etc.
     private boolean isIngestable;       // can be ingested
-    private HashSet<String> tags;       // function tags
+    public final MudTags tags;          // functionality tags
     private Date lastUsed;              // the last time the item was manipulated
 
     public MudItem() {
@@ -34,12 +34,11 @@ public class MudItem {
         isGetable = true;
         isContainer = false;
         contents = new HashMap<String, MudItem>();
-        isVisible = true;
-        visibleTo = new HashSet<MudPlayer>();
+        visibility = new MudAccessControl();
         isUsable = false;
-        isIngestable = false;
         usesLeft = -1;
-        tags = new HashSet<String>();
+        isIngestable = false;
+        tags = new MudTags();
     }
 
     public String getShortName() {
@@ -114,23 +113,8 @@ public class MudItem {
         return contents;
     }
 
-    public boolean getIsVisible() {
-        return isVisible;
-    }
-
-    public void setIsVisible(boolean isVisible) {
-        this.isVisible = isVisible;
-    }
-
     public boolean getIsVisibleTo(MudPlayer player) {
-        if (isVisible || visibleTo.contains(player))
-            return true;
-        return false;
-    }
-
-    public void setIsVisibleTo(MudPlayer player) {
-        if (!getIsVisibleTo(player))
-            visibleTo.add(player);
+        return visibility.getIsRestrictedTo(player);
     }
 
     public boolean getIsUsable() {
@@ -167,20 +151,18 @@ public class MudItem {
         this.isIngestable = isIngestable;
     }
 
-    public boolean hasTag(String tag) {
-        if (tags.contains(tag))
+    public boolean hasLock() {
+        if (lock != null)
             return true;
         return false;
     }
 
-    public void addTagIfNotExists(String tag) {
-        if (!tags.contains(tag))
-            tags.add(tag);
+    public void setLock(MudLock lock) {
+        this.lock = lock;
     }
 
-    public void removeTagIfExists(String tag) {
-        if (hasTag(tag))
-            tags.remove(tag);
+    public void removeLock() {
+        this.lock = null;
     }
 
     public Date getLastUsed() {

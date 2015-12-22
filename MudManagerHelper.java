@@ -120,7 +120,7 @@ public final class MudManagerHelper {
                 addItem = false;
             else if (isContainer != null && (isContainer == mudItem.getIsContainer()))
                 addItem = false;
-            else if (isVisible != null && (isVisible == (mudItem.getIsVisible() || mudItem.getIsVisibleTo(player))))
+            else if (isVisible != null && mudItem.getIsVisibleTo(player))
                 addItem = false;
             else if (isUseable != null && (isUseable == mudItem.getIsUsable()))
                 addItem = false;
@@ -129,7 +129,7 @@ public final class MudManagerHelper {
                 addItem = false;
             else if (isIngestable != null && (isIngestable == mudItem.getIsIngestable()))
                 addItem = false;
-            else if (hasTag != null && mudItem.hasTag(hasTag))
+            else if (hasTag != null && mudItem.tags.hasTag(hasTag))
                 addItem = false;
         }
         return false;
@@ -185,7 +185,7 @@ public final class MudManagerHelper {
                 addExit = false;
             else if (isContainer != null && isContainer == true)
                 addExit = false;
-            else if (isVisible != null && (isVisible == (mudExit.getIsVisible() || mudExit.getIsVisibleTo(player))))
+            else if (isVisible != null && mudExit.getIsVisibleTo(player))
                 addExit = false;
             else if (isUseable != null && isUseable == true)
                 addExit = false;
@@ -193,7 +193,7 @@ public final class MudManagerHelper {
                 addExit = false;
             else if (isIngestable != null)
                 addExit = false;
-            else if (hasTag != null && !mudExit.hasTag(hasTag))
+            else if (hasTag != null && !mudExit.tags.hasTag(hasTag))
                 addExit = false;
             if (addExit)
                 result.roomExits.add(mudExit);

@@ -35,7 +35,8 @@ public class Test {
 
     public static void main(String[] args) {
         morphia = new Morphia();
-        morphia.map(MudPlayer.class).map(MudRoom.class).map(MudItem.class).map(MudExit.class);
+        morphia.map(MudPlayer.class).map(MudRoom.class).map(MudItem.class)
+                .map(MudExit.class).map(MudLock.class).map(MudAccessControl.class);
         datastore = morphia.createDatastore(new MongoClient(), MONGO_DATABASE);
         datastore.ensureIndexes();
 
@@ -71,12 +72,10 @@ public class Test {
                 IngestableSpec.add(key);
                 IngestableSpec.add(mudItem.getShortName());
             }
-/*
-            if (mudItem.getIsLockable()) {
+            if (mudItem.hasLock()) {
                 LockableSpec.add(key);
                 LockableSpec.add(mudItem.getShortName());
             }
-*/
             if (mudItem.getIsContainer()) {
                 ContainerSpec.add(key);
                 ContainerSpec.add(mudItem.getShortName());
@@ -86,14 +85,17 @@ public class Test {
     }
 
     private static void dumpAllSlots() {
-
         // iterate over rooms
         for (MudRoom mudRoom : datastore.find(MudRoom.class)) {
             processItemMap(mudRoom.getItems());
             Iterator it = mudRoom.getExits().entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry pair = (Map.Entry)it.next();
-                ExitSpec.add((String)pair.getKey());
+                String exitName = (String)pair.getKey();
+                MudExit exit = (MudExit)pair.getValue();
+                ExitSpec.add(exitName);
+                if (exit.hasLock())
+                    LockableSpec.add(exitName);
             }
         }
         // iterate over players
@@ -137,7 +139,7 @@ public class Test {
         mudItem.setIsGetable(false);
         mudItem.setIsContainer(true);
         mudItem.setHint("To use the key dispenser, say the phrase: 'get key from key dispenser'.");
-        mudItem.addTagIfNotExists("dispenser");
+        mudItem.tags.addTag("dispenser");
         startRoom.addItem(mudItem);
         // save the room
         datastore.save(startRoom);
@@ -165,19 +167,25 @@ public class Test {
         mudItem.setIsGetable(false);
         mudItem.setIsContainer(true);
         mudItem.setHint("To use the trashcan, say the phrase: 'put key in trashcan'.");
-        mudItem.addTagIfNotExists("trashcan");
+        mudItem.tags.addTag("trashcan");
         northRoom.addItem(mudItem);
         datastore.save(northRoom);
 
+        MudLock lock = new MudLock();
+        lock.setDescription("A simple lock.");
+        lock.access.setIsRestricted(true);
+        lock.access.setIsShared(false);
+        datastore.save(lock);
+        
         MudExit northExit = new MudExit();
         northExit.setDestination(northRoom);
-        northExit.setIsLockable(true);
-        northExit.setIsSharedLock(false);
+        northExit.setLock(lock);
         startRoom.getExits().put("north", northExit);
         datastore.save(startRoom);
 
         MudExit southExit = new MudExit();
         southExit.setDestination(startRoom);
+        southExit.setLock(lock);
         northRoom.getExits().put("south", southExit);
         datastore.save(northRoom);
     }
