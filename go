@@ -3,7 +3,7 @@
 CP=".:/home/dacb/.m2/repository/org/mongodb/morphia/morphia/1.0.1/morphia-1.0.1.jar:/home/dacb/.m2/repository/org/mongodb/mongo-java-driver/3.0.4/mongo-java-driver-3.0.4.jar:target/classes" 
 
 echo building
-javac -cp "$CP" Test.java MudPlayer.java MudItem.java MudExit.java MudRoom.java MudItemMapHelper.java
+javac -cp "$CP" Test.java MudPlayer.java MudItem.java MudExit.java MudRoom.java MudItemMapHelper.java MudItemExitSearchHelper.java MudItemExitSearchResult.java
 
 mkdir -p mud
 cd mud
