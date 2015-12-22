@@ -64,21 +64,15 @@ public class MudManager {
         datastore = morphia.createDatastore(new MongoClient(), MONGO_DATABASE);
         datastore.ensureIndexes();
 
-        player = datastore.get(MudPlayer.class, session.getUser().getUserId());
-        if (player == null) {
-            player = MudManagerHelper.newPlayer(session.getUser().getUserId());
+        // load the player and populate the interaction
+        player = MudManagerHelper.getPlayer(datastore, session.getUser().getUserId());
+        if (player.getIsNew()  == true) {
     	    speechOutput += "Ah, a new player.  Welcome.  For instructions, say 'help me'.";
+            player.setIsNew(false);
+            datastore.save(player);
         } else {
             speechOutput += "Welcome back to the Mud.";
         }
-
-        // login ritual
-        MudRoom currentRoom = player.getRoom();
-        currentRoom.updateLastVisited();
-        player.updateLastSeen();
-        datastore.save(player);
-        datastore.save(currentRoom);
-        log.info("player {} in {}", player.getId(), currentRoom.getId());
 
         speechOutput = "";
         repromptText = "";
