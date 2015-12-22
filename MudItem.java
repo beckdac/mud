@@ -21,6 +21,9 @@ public class MudItem {
     private boolean isVisible;          // if this is is false, then only players in the visibleTo array can see this item
     @Reference
     private List<MudPlayer> visibleTo;  // if not visible, list of who can see it
+    private boolean isUsable;           // can be invoked in a use context
+    private int usesLeft;               // how many more times can this be used, -1 = infinite, also how many ingests left, etc.
+    private boolean isIngestable;       // can be ingested
     private List<String> tags;          // function tags
     private Date lastUsed;              // the last time the item was manipulated
 
@@ -33,6 +36,9 @@ public class MudItem {
         contents = new HashMap<String, MudItem>();
         isVisible = true;
         visibleTo = new ArrayList<MudPlayer>();
+        isUsable = false;
+        isIngestable = false;
+        usesLeft = -1;
         tags = new ArrayList<String>();
     }
 
@@ -104,15 +110,49 @@ public class MudItem {
         this.isVisible = isVisible;
     }
 
-    public boolean isVisibleTo(MudPlayer player) {
+    public boolean getIsVisibleTo(MudPlayer player) {
         if (isVisible || visibleTo.contains(player))
             return true;
         return false;
     }
 
     public void setIsVisibleTo(MudPlayer player) {
-        if (!isVisibleTo(player))
+        if (!getIsVisibleTo(player))
             visibleTo.add(player);
+    }
+
+    public boolean getIsUsable() {
+        return isUsable;
+    }
+
+    public void setIsUsable(boolean isUsable) {
+        this.isUsable = isUsable;
+    }
+
+    public int getUsesLeft() {
+        return usesLeft;
+    }
+
+    public void setUsesLeft(int usesLeft) {
+        this.usesLeft = usesLeft;
+    }
+
+    public int incrementUsesLeft() {
+        usesLeft++;
+        return usesLeft;
+    }
+
+    public int decrementUsesLeft() {
+        usesLeft--;
+        return usesLeft;
+    }
+
+    public boolean getIsIngestable() {
+        return isIngestable;
+    }
+
+    public void setIsIngestable(boolean isIngestable) {
+        this.isIngestable = isIngestable;
     }
 
     public boolean hasTag(String tag) {
