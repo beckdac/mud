@@ -3,7 +3,7 @@
 CP=".:/home/dacb/.m2/repository/org/mongodb/morphia/morphia/1.0.1/morphia-1.0.1.jar:/home/dacb/.m2/repository/org/mongodb/mongo-java-driver/3.0.4/mongo-java-driver-3.0.4.jar:/home/dacb/.m2/repository/org/slf4j/slf4j-api/1.7.10/slf4j-api-1.7.10.jar:/home/dacb/.m2/repository/org/slf4j/slf4j-simple/1.7.10/slf4j-simple-1.7.10.jar:target/classes" 
 
 echo building
-javac -cp "$CP" Test.java MudPlayer.java MudItem.java MudExit.java MudRoom.java MudItemMapHelper.java MudItemExitSearchResult.java MudManagerHelper.java
+javac -cp "$CP" Test.java MudPlayer.java MudItem.java MudExit.java MudRoom.java MudItemMapHelper.java MudItemExitSearchResult.java MudManagerHelper.java MudLock.java MudAccessControl.java MudTags.java
 javacRC=$?
 
 if [ "$javacRC" -eq "1" ]
