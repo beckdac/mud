@@ -8,16 +8,28 @@ import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.bson.types.ObjectId;
+
 import org.mongodb.morphia.Datastore;
 
 public final class MudManagerHelper {
     private static final Logger log = LoggerFactory.getLogger(MudManagerHelper.class);
 
+    private static final ObjectId MUD_ROOMID_START = new ObjectId("000000000000000000000000");
+
     private MudManagerHelper() {
     }
 
-    private boolean playerMove(Datastore datastore, MudPlayer player, String exit) {
-        MudRoom oldRoom = player.getRoom()
+    public static MudPlayer playerNew(Datastore datastore, String userId) {
+        MudPlayer player = new MudPlayer();
+        log.info("new player with userId = {}", userId);
+        player.setId(userId);
+        player.setRoom(datastore.get(MudRoom.class, MUD_ROOMID_START));
+        return player;
+    }
+
+    public static boolean playerMove(Datastore datastore, MudPlayer player, String exit) {
+        MudRoom oldRoom = player.getRoom();
         MudRoom newRoom = oldRoom.getExitDestination(exit);
 
         if (newRoom == null ) {
@@ -38,12 +50,12 @@ public final class MudManagerHelper {
         return true;
     }
 
-    private static boolean playerDrop(Datastore datastore, MudPlayer player, String name) {
+    public static boolean playerDrop(Datastore datastore, MudPlayer player, String name) {
         MudItem mudItem = player.removeItem(name);
         MudRoom mudRoom = player.getRoom();
         if (mudItem == null)
             return false;
-        mudRoom = addItem(mudItem);
+        mudRoom.addItem(mudItem);
 
         datastore.save(player);
         datastore.save(mudRoom);
@@ -51,7 +63,7 @@ public final class MudManagerHelper {
         return true;
     }
 
-    private static MudItem playerGet(String name) {
+    public static MudItem playerGet(Datastore datastore, MudPlayer player, String name) {
         MudRoom currentRoom = player.getRoom();
         MudItem mudItem = currentRoom.getItemIfExists(name);
         if (mudItem != null && mudItem.getIsGetable()) {
@@ -60,6 +72,14 @@ public final class MudManagerHelper {
             datastore.save(player);
             datastore.save(currentRoom);
         }
+        return mudItem;
+    }
+
+    public static MudItem itemNew(String shortName, String fullName, String description) {
+        MudItem mudItem = new MudItem();
+        mudItem.setShortName(shortName);
+        mudItem.setFullName(fullName);
+        mudItem.setDescription(description);
         return mudItem;
     }
 }

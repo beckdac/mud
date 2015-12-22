@@ -35,8 +35,6 @@ public class MudManager {
 
     private static final String MONGO_DATABASE = "mud";
 
-    private static final ObjectId MUD_ROOMID_START     = new ObjectId("000000000000000000000000");
-
     private static <T> T randomFrom(T... items) { return items[new Random().nextInt(items.length)]; }
     private static final String[] WHAT_NEXT_Q_LIST = {
             "What do you want to do now?",
@@ -68,10 +66,7 @@ public class MudManager {
 
         player = datastore.get(MudPlayer.class, session.getUser().getUserId());
         if (player == null) {
-            log.info("new player, Id = {}", session.getUser().getUserId());
-            MudPlayer player = new MudPlayer();
-            player.setId(session.getUser().getUserId());
-            player.setRoom(datastore.get(MudRoom.class, MUD_ROOMID_START));
+            player = MudManagerHelper.newPlayer(session.getUser().getUserId());
     	    speechOutput += "Ah, a new player.  Welcome.  For instructions, say 'help me'.";
         } else {
             speechOutput += "Welcome back to the Mud.";
@@ -88,49 +83,6 @@ public class MudManager {
         speechOutput = "";
         repromptText = "";
         // ready to go
-    }
-
-    private boolean playerMove(String exit) {
-        MudRoom currentRoom = player.getRoom();
-        
-        if (player.useExit(exit)) {
-            datastore.save(player);
-            datastore.save(currentRoom);
-            currentRoom = player.getRoom();
-            datastore.save(currentRoom);
-            System.out.println(currentRoom.getDescription());
-            return true;
-        }
-        return false;
-    }
-
-    public MudItem playerItemSearch(String item) {
-        return player.getItemIfExists(item);
-    }
-
-    public MudItem roomItemSearch(String item) {
-        return player.getRoom().getItemIfExists(item);
-    }
-
-    private static boolean playerDrop(String item) {
-        if (player.dropItem(item)) {
-            datastore.save(player);
-            datastore.save(player.getRoom());
-            return true;
-        }
-        return false;
-    }
-
-    private static MudItem playerGet(String name) {
-        MudRoom currentRoom = player.getRoom();
-        MudItem mudItem = currentRoom.getItemIfExists(name);
-        if (mudItem != null && mudItem.getIsGetable()) {
-            currentRoom.removeItem(name);
-            player.addItem(mudItem);
-            datastore.save(player);
-            datastore.save(currentRoom);
-        }
-        return mudItem;
     }
 
     /**
