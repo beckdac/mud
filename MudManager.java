@@ -49,6 +49,19 @@ public class MudManager {
             "You can look again, take some other action, ask for help or a hint.",
             "Why not try taking another look around or doing a search?"
         };
+    private static final String[] SUCCESS_LIST = {
+            "Done.",
+            "No problem.",
+            "Success.",
+            "Roger, roger.",
+            "Ten four."
+        };
+    private static final String[] OBJECT_NOT_FOUND_LIST = {
+            "Sorry, I cannot find {}.",
+            "Uhhh, I can't find {}.",
+            "There doesn't seem to be a {} nearby.",
+            "Nope.  Sorry, no {} is around."
+        };
 
     private final Morphia morphia;
     private final Datastore datastore;
@@ -180,6 +193,7 @@ public class MudManager {
         repromptText += randomFrom(REPROMPT_Q_LIST);
 
         return getAskSpeechletResponse();
+        }
     }
 
     public SpeechletResponse getGetIntentResponse(Intent intent, Session session) {
@@ -187,11 +201,13 @@ public class MudManager {
         Slot fromObjectSpecSlot = intent.getSlot(SLOT_FROM_OBJECTSPEC); // preceeded by 'from' so basically anything with isContainer set
         if (objectSpecSlot != null && objectSpecSlot.getValue() != null) {
             String objectSpec = objectSpecSlot.getValue();
-            
-            speechOutput += 
+            if (MudManagerHelper.playerGet(datastore, player, objectSpec) == null)
+                speechOutput += String.format(randomFrom(OBJECT_NOT_FOUND_LIST), objectSpec);
+            else
+                speechOutput += randomFrom(SUCCESS_LIST);
         } else {
             // what do you want to get?
-            speechOutput += "
+            speechOutput += "Sorry, I don't know what you want to get.";
         }
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
         repromptText += randomFrom(REPROMPT_Q_LIST);
@@ -200,6 +216,17 @@ public class MudManager {
     }
 
     public SpeechletResponse getDropIntentResponse(Intent intent, Session session) {
+        Slot objectSpecSlot = intent.getSlot(SLOT_OBJECTSPEC);          // any object in inventory
+        if (objectSpecSlot != null && objectSpecSlot.getValue() != null) {
+            String objectSpec = objectSpecSlot.getValue();
+            if (MudManagerHelper.playerDrop(datastore, player, objectSpec))
+                speechOutput += randomFrom(SUCCESS_LIST);
+            else
+                speechOutput += String.format(randomFrom(OBJECT_NOT_FOUND_LIST), objectSpec);
+        } else {
+            // what do you want to get?
+            speechOutput += "Sorry, I don't know what you want to drop.";
+        }
         // transferItem
         speechOutput += 
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
@@ -210,7 +237,7 @@ public class MudManager {
 
     public SpeechletResponse getOpenIntentResponse(Intent intent, Session session) {
         // find items or exits with is closed
-        speechOutput += 
+        speechOutput += "unimplemented";
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
         repromptText += randomFrom(REPROMPT_Q_LIST);
 
@@ -218,7 +245,7 @@ public class MudManager {
     }
 
     public SpeechletResponse getUseIntentResponse(Intent intent, Session session) {
-        speechOutput += 
+        speechOutput += "unimplemented";
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
         repromptText += randomFrom(REPROMPT_Q_LIST);
 
@@ -227,7 +254,7 @@ public class MudManager {
 
     // reveals hidden items
     public SpeechletResponse getSearchIntentResponse(Intent intent, Session session) {
-        speechOutput += 
+        speechOutput += "unimplemented";
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
         repromptText += randomFrom(REPROMPT_Q_LIST);
 
@@ -235,7 +262,16 @@ public class MudManager {
     }
 
     public SpeechletResponse getHintIntentResponse(Intent intent, Session session) {
-        speechOutput += player.getRoom().getHint();
+        Slot objectSpecSlot = intent.getSlot(SLOT_OBJECTSPEC);          // any object in inventory
+        if (objectSpecSlot != null && objectSpecSlot.getValue() != null) {
+            String objectSpec = objectSpecSlot.getValue();
+            if (MudManagerHelper.playerDrop(datastore, player, objectSpec))
+                speechOutput += randomFrom(SUCCESS_LIST);
+            else
+                speechOutput += String.format(randomFrom(OBJECT_NOT_FOUND_LIST), objectSpec);
+        } else {
+            speechOutput += player.getRoom().getHint();
+        }
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
         repromptText += randomFrom(REPROMPT_Q_LIST);
 
