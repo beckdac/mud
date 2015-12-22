@@ -18,6 +18,7 @@ public class MudPlayer {
     private Date lastSeen;
     int sessions;
     int interactions;
+    boolean isNew;
     @Reference
     private MudRoom room;
     @Embedded("inventory")
@@ -26,6 +27,7 @@ public class MudPlayer {
     public MudPlayer() {
         sessions = 0;
         interactions = 0;
+        isNew = true;
     }
 
     public String getId() {
@@ -41,8 +43,7 @@ public class MudPlayer {
     }
 
     public void setRoom(MudRoom newRoom) {
-        if (room != null)
-            room = newRoom;
+        room = newRoom;
     }
 
     public int addItem(MudItem mudItem) {
@@ -69,12 +70,28 @@ public class MudPlayer {
         return inventory.size();
     }
 
-    public boolean dropItem(String item) {
-        MudItem mudItem = removeItem(item);
-        if (mudItem == null)
-            return false;
-        room.addItem(mudItem);
-        return true;
+    public boolean getIsNew() {
+        return isNew;
+    }
+    
+    public void setIsNew(boolean isNew) {
+        this.isNew = isNew;
+    }
+
+    public int getSessions() {
+        return interactions;
+    }
+
+    public void incrementSessions() {
+        interactions++;
+    }
+
+    public int getInteractions() {
+        return interactions;
+    }
+
+    public void incrementInteractions() {
+        interactions++;
     }
 
     public Date getLastSeen() {
