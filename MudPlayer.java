@@ -40,21 +40,9 @@ public class MudPlayer {
         return room;
     }
 
-    public boolean useExit(String exit) {
-        MudRoom dest = room.getExitDestination(exit);
-        if (dest == null)
-            return false;
-        setRoom(dest);
-        return true;
-    }
-
     public void setRoom(MudRoom newRoom) {
-        if (room != null) // possible at initialization
-            room.removePlayer(this);
-
-        room = newRoom;
-        room.updateLastVisited();
-        room.addPlayer(this);
+        if (room != null)
+            room = newRoom;
     }
 
     public int addItem(MudItem mudItem) {
