@@ -1,0 +1,5 @@
+#!/bin/bash
+
+mongodump --out world.json --db mud
+
+cat world.json
