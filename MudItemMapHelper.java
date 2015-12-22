@@ -1,8 +1,8 @@
 package mud;
 
 import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 
 public final class MudItemMapHelper {
@@ -84,8 +84,8 @@ public final class MudItemMapHelper {
         return null;
     }
 
-    public static List<MudItem> getItemListIfExistsByFullName(Map<String, MudItem> itemMap, String name) {
-        List<MudItem> mudItemList = new ArrayList<MudItem>();
+    public static HashSet<MudItem> getItemListIfExistsByFullName(Map<String, MudItem> itemMap, String name) {
+        HashSet<MudItem> mudItemList = new HashSet<MudItem>();
         Iterator it = itemMap.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry)it.next();

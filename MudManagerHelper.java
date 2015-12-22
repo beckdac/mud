@@ -2,6 +2,7 @@ package mud;
 
 import java.util.Map;
 import java.util.List;
+import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -149,7 +150,7 @@ public final class MudManagerHelper {
                     hasUsesLeft, isIngestable, hasTag))
                 result.playerItems.add(mudItem);
             if (includeFullName) {
-                List<MudItem> mudItemList = player.getItemListIfExistsByFullName(name);
+                HashSet<MudItem> mudItemList = player.getItemListIfExistsByFullName(name);
                 Iterator<MudItem> it = mudItemList.iterator();
                 while (it.hasNext()) {
                     mudItem = it.next();
@@ -166,7 +167,7 @@ public final class MudManagerHelper {
                     hasUsesLeft, isIngestable, hasTag))
                 result.roomItems.add(mudItem);
             if (includeFullName) {
-                List<MudItem> mudItemList = room.getItemListIfExistsByFullName(name);
+                HashSet<MudItem> mudItemList = room.getItemListIfExistsByFullName(name);
                 Iterator<MudItem> it = mudItemList.iterator();
                 while (it.hasNext()) {
                     mudItem = it.next();

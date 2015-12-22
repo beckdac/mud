@@ -8,10 +8,10 @@ import org.mongodb.morphia.annotations.Reference;
 import org.bson.types.ObjectId;
 
 import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
+import java.util.List;
 import java.util.HashMap;
+import java.util.HashSet;
 
 @Entity("rooms")
 public class MudRoom {
@@ -24,13 +24,13 @@ public class MudRoom {
     @Embedded("items")
     private Map<String, MudItem> items;
     @Reference
-    private List<MudPlayer> players;
+    private HashSet<MudPlayer> players;
 
     public MudRoom() {
         hint = "No hint available.  Keep looking, searching and using!";
         exits = new HashMap<String, MudExit>();
         items = new HashMap<String, MudItem>();
-        players = new ArrayList<MudPlayer>();
+        players = new HashSet<MudPlayer>();
     }
 
     public ObjectId getId() {
@@ -95,7 +95,7 @@ public class MudRoom {
         return MudItemMapHelper.getItemIfExists(items, name);
     }
 
-    public List<MudItem> getItemListIfExistsByFullName(String name) {
+    public HashSet<MudItem> getItemListIfExistsByFullName(String name) {
         return MudItemMapHelper.getItemListIfExistsByFullName(items, name);
     }
 
@@ -119,7 +119,7 @@ public class MudRoom {
             players.add(player);
     }
 
-    public List<MudPlayer> getPlayers() {
+    public HashSet<MudPlayer> getPlayers() {
         return players;
     }
 

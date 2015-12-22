@@ -4,10 +4,9 @@ import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Reference;
 
 import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.HashSet;
 
 @Embedded
 public class MudItem {
@@ -21,11 +20,11 @@ public class MudItem {
     private Map<String, MudItem> contents;// contents of the container if above is true
     private boolean isVisible;          // if this is is false, then only players in the visibleTo array can see this item
     @Reference
-    private List<MudPlayer> visibleTo;  // if not visible, list of who can see it
+    private HashSet<MudPlayer> visibleTo;  // if not visible, list of who can see it
     private boolean isUsable;           // can be invoked in a use context
     private int usesLeft;               // how many more times can this be used, -1 = infinite, also how many ingests left, etc.
     private boolean isIngestable;       // can be ingested
-    private List<String> tags;          // function tags
+    private HashSet<String> tags;       // function tags
     private Date lastUsed;              // the last time the item was manipulated
 
     public MudItem() {
@@ -36,11 +35,11 @@ public class MudItem {
         isContainer = false;
         contents = new HashMap<String, MudItem>();
         isVisible = true;
-        visibleTo = new ArrayList<MudPlayer>();
+        visibleTo = new HashSet<MudPlayer>();
         isUsable = false;
         isIngestable = false;
         usesLeft = -1;
-        tags = new ArrayList<String>();
+        tags = new HashSet<String>();
     }
 
     public String getShortName() {

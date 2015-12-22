@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.HashSet;
 
 @Entity("players")
 public class MudPlayer {
@@ -62,7 +63,7 @@ public class MudPlayer {
         return MudItemMapHelper.getItemIfExists(inventory, name);
     }
 
-    public List<MudItem> getItemListIfExistsByFullName(String name) {
+    public HashSet<MudItem> getItemListIfExistsByFullName(String name) {
         return MudItemMapHelper.getItemListIfExistsByFullName(inventory, name);
     }
 
