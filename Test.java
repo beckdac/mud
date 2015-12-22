@@ -24,23 +24,26 @@ public class Test {
         datastore = morphia.createDatastore(new MongoClient(), MONGO_DATABASE);
         datastore.ensureIndexes();
 
+        // if the starting room does not exist create the basic world
         MudRoom startRoom = datastore.get(MudRoom.class, MUD_ROOMID_START);
         if (startRoom == null) {
+            MudItem mudItem;
+
+            // the room where everything begins
             startRoom = new MudRoom();
             startRoom.setId(MUD_ROOMID_START);
             startRoom.setDescription("You are in a cold and damp stone room.  The only light is coming from a crack in the ceiling above.");
-            startRoom.setHint("Try going north and getting a key from the key dispenser?");
-            MudItem key = itemNew("key", "fake skeleton key", "You see a key with a skull on it.  It looks warn out.", true, false, true);
-            startRoom.addItem(key);
+            startRoom.setHint("Try going north and getting a key from the key dispenser? and opening the east door with it.");
+            // a sign to look at
+            mudItem = itemNew("sign", "help sign", "The sign reads: say 'help me' for instructions or, if you are feeling lucky, say 'hint please'.", false, false, true);
+            startRoom.addItem(mudItem);
             datastore.save(startRoom);
 
             MudRoom northRoom = new MudRoom();
             northRoom.setDescription("You are standing on a thin ledge that looks down into a great chasm with no bottom in sight.");
             startRoom.setHint("Why not get a key from the key dispenser and using it a door in the south room?");
-            key = itemNew("key", "generic key", "You see a plain metal key with no markings.", true, false, true);
-            northRoom.addItem(key);
-            key = itemNew("key", "special key", "There is an inscription on the key that reads 'Red door'.", true, false, true);
-            northRoom.addItem(key);
+            mudItem = itemNew("key dispenser", "key dispenser", "You see a matte black forearm length cylinder in the center of the room with a pulsing blue light eminating from the top.  It has an engraving on the top that says 'use me' or 'get key from me'.", false, false, true);
+            northRoom.addItem(mudItem);
             datastore.save(northRoom);
 
             MudExit northExit = new MudExit();

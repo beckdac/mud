@@ -25,7 +25,6 @@ import com.amazon.speech.ui.SimpleCard;
 
 // the MudManager essentially is the glue between the data access objects / mongodb
 // and the alexa skill handler
-
 public class MudManager {
     private static final Logger log = LoggerFactory.getLogger(MudManager.class);
 
@@ -113,6 +112,27 @@ public class MudManager {
         return player.getRoom().getItemIfExists(item);
     }
 
+    private static boolean playerDrop(String item) {
+        if (player.dropItem(item)) {
+            datastore.save(player);
+            datastore.save(player.getRoom());
+            return true;
+        }
+        return false;
+    }
+
+    private static MudItem playerGet(String name) {
+        MudRoom currentRoom = player.getRoom();
+        MudItem mudItem = currentRoom.getItemIfExists(name);
+        if (mudItem != null && mudItem.getIsGetable()) {
+            currentRoom.removeItem(name);
+            player.addItem(mudItem);
+            datastore.save(player);
+            datastore.save(currentRoom);
+        }
+        return mudItem;
+    }
+
     /**
      * Creates and returns response for Launch request.
      *
@@ -132,9 +152,9 @@ public class MudManager {
     }
 
     public SpeechletResponse getLookIntentResponse(Intent intent, Session session) {
-        Slot objetspecSlot = intent.getSlot(SLOT_OBJECTSPEC);
-        if (objetspecSlot != null && objetspecSlot.getValue() != null) {
-            String objectSpec = objetspecSlot.getValue();
+        Slot objectSpecSlot = intent.getSlot(SLOT_OBJECTSPEC);
+        if (objectSpecSlot != null && objectSpecSlot.getValue() != null) {
+            String objectSpec = objectSpecSlot.getValue();
             String playerSpeechOutput = "", roomSpeechOutput = "", exitSpeechOutput = "";
             int found = 0;
             // go through precedence chain looking for something matching the where slot
@@ -186,7 +206,30 @@ public class MudManager {
     }
 
     public SpeechletResponse getPutIntentResponse(Intent intent, Session session) {
-        speechOutput += 
+        Slot objectSpecSlot = intent.getSlot(SLOT_OBJECTSPEC);       // any object
+        String objectSpec;
+        Slot containerSpecSlot = intent.getSlot(SLOT_CONTAIERSPEC); // preceeded by 'into' so basically anything with isContainer set
+        String containerSpec;
+
+        MudItem mudItem;
+        if (objectSpecSlot != null && objectSpecSlot.getValue() != null) {
+            // check local inventory
+            objectSpec = objectSpecSlot.getValue();
+            mudItem = player.getItemIfExists(objectSpec);
+        }
+        if (mudItem != null) {
+            MudItem mudItemInto; 
+            if (containerSpecSlot != null && containerSpecSlot.getValue() != null) {
+                containerSpec = containerSpecSlot.getValue();
+                mudItemInto = player.getItemIfExists(containerSpec);
+                
+                // we need to find an object in the local environment that is a container
+            }
+        } else {
+            if (objectSpec != null)
+                speechOutput += "Sorry, I couldn't find an item named " + objectSpec + ".";
+            else
+                speechOutput += "Sorry, I don't understand what you want to put where.";
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
         repromptText += randomFrom(REPROMPT_Q_LIST);
 
@@ -194,7 +237,16 @@ public class MudManager {
     }
 
     public SpeechletResponse getGetIntentResponse(Intent intent, Session session) {
-        speechOutput += 
+        Slot objectSpecSlot = intent.getSlot(SLOT_OBJECTSPEC);          // any object
+        Slot fromObjectSpecSlot = intent.getSlot(SLOT_FROM_OBJECTSPEC); // preceeded by 'from' so basically anything with isContainer set
+        if (objectSpecSlot != null && objectSpecSlot.getValue() != null) {
+            String objectSpec = objectSpecSlot.getValue();
+            
+            speechOutput += 
+        } else {
+            // what do you want to get?
+            speechOutput += "
+        }
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
         repromptText += randomFrom(REPROMPT_Q_LIST);
 
@@ -202,6 +254,7 @@ public class MudManager {
     }
 
     public SpeechletResponse getDropIntentResponse(Intent intent, Session session) {
+        // transferItem
         speechOutput += 
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
         repromptText += randomFrom(REPROMPT_Q_LIST);
@@ -210,6 +263,7 @@ public class MudManager {
     }
 
     public SpeechletResponse getOpenIntentResponse(Intent intent, Session session) {
+        // find items or exits with is closed
         speechOutput += 
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
         repromptText += randomFrom(REPROMPT_Q_LIST);

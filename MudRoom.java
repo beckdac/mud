@@ -83,16 +83,20 @@ public class MudRoom {
         return MudItemMapHelper.addItem(items, mudItem);
     }
 
-    public MudItem removeItem(String item) {
-        return MudItemMapHelper.removeItem(items, item);
+    public MudItem removeItem(String name) {
+        return MudItemMapHelper.removeItem(items, name);
     }
 
-    public boolean hasItem(String item) {
-        return MudItemMapHelper.hasItem(items, item);
+    public boolean hasItem(String name) {
+        return MudItemMapHelper.hasItem(items, name);
     }
 
-    public MudItem getItemIfExists(String item) {
-        return MudItemMapHelper.getItemIfExists(items, item);
+    public MudItem getItemIfExists(String name) {
+        return MudItemMapHelper.getItemIfExists(items, name);
+    }
+
+    public List<MudItem> getItemListIfExistsByFullName(String name) {
+        return MudItemMapHelper.getItemListIfExistsByFullName(items, name);
     }
 
     public boolean hasPlayer(MudPlayer player) {

@@ -8,6 +8,7 @@ import org.mongodb.morphia.annotations.Reference;
 import org.bson.types.ObjectId;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -60,16 +61,20 @@ public class MudPlayer {
         return MudItemMapHelper.addItem(inventory, mudItem);
     }
 
-    public MudItem removeItem(String item) {
-        return MudItemMapHelper.removeItem(inventory, item);
+    public MudItem removeItem(String name) {
+        return MudItemMapHelper.removeItem(inventory, name);
     }
 
-    public boolean hasItem(String item) {
-        return MudItemMapHelper.hasItem(inventory, item);
+    public boolean hasItem(String name) {
+        return MudItemMapHelper.hasItem(inventory, name);
     }
 
-    public MudItem getItemIfExists(String item) {
-        return MudItemMapHelper.getItemIfExists(inventory, item);
+    public MudItem getItemIfExists(String name) {
+        return MudItemMapHelper.getItemIfExists(inventory, name);
+    }
+
+    public List<MudItem> getItemListIfExistsByFullName(String name) {
+        return MudItemMapHelper.getItemListIfExistsByFullName(inventory, name);
     }
 
     public int getInventorySize() {
