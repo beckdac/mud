@@ -32,6 +32,7 @@ public class MudManager {
     private static final String SLOT_ITEM = "Item";
     private static final String SLOT_EXIT = "Exit";
     private static final String SLOT_OBJECTSPEC = "ObjectSpec";
+    private static final String SLOT_CONTAINERSPEC = "ContainerSpec";
 
     private static final String MONGO_DATABASE = "mud";
 
@@ -132,13 +133,13 @@ public class MudManager {
                     speechOutput += searchResult.roomExits.get(0).getDescription();
             } else {
                 // report how many found in each set, not too helpful right now :(
-                speechOutput += String.format("OK, I found %d things called '%s'.", found, objectSpec);
+                speechOutput += String.format("OK, I found %d things called '%s'.", searchResult.found, objectSpec);
                 if (searchResult.playerItems.size() > 0) {
-                    speechOutput += Integer.toString(searchResult.playerItems.size()) " in your inventory.";
+                    speechOutput += Integer.toString(searchResult.playerItems.size()) + " in your inventory.";
                 } else if (searchResult.playerItems.size() > 0) {
-                    speechOutput += Integer.toString(searchResult.roomItems.size()) " nearby.";
+                    speechOutput += Integer.toString(searchResult.roomItems.size()) + " nearby.";
                 } else {
-                    speechOutput += "And " + Integer.toString(searchresult.roomExits.size()) + "exits";
+                    speechOutput += "And " + Integer.toString(searchResult.roomExits.size()) + "exits";
                 }
             }
         } else 
@@ -150,11 +151,11 @@ public class MudManager {
 
     public SpeechletResponse getPutIntentResponse(Intent intent, Session session) {
         Slot objectSpecSlot = intent.getSlot(SLOT_OBJECTSPEC);       // any object
-        String objectSpec;
-        Slot containerSpecSlot = intent.getSlot(SLOT_CONTAIERSPEC); // preceeded by 'into' so basically anything with isContainer set
+        String objectSpec = null;
+        Slot containerSpecSlot = intent.getSlot(SLOT_CONTAINERSPEC); // preceeded by 'into' so basically anything with isContainer set
         String containerSpec;
 
-        MudItem mudItem;
+        MudItem mudItem = null;
         if (objectSpecSlot != null && objectSpecSlot.getValue() != null) {
             // check local inventory
             objectSpec = objectSpecSlot.getValue();
@@ -176,13 +177,13 @@ public class MudManager {
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
         repromptText += randomFrom(REPROMPT_Q_LIST);
 
-        return getAskSpeechletResponse();
         }
+        return getAskSpeechletResponse();
     }
 
     public SpeechletResponse getGetIntentResponse(Intent intent, Session session) {
         Slot objectSpecSlot = intent.getSlot(SLOT_OBJECTSPEC);          // any object
-        Slot fromObjectSpecSlot = intent.getSlot(SLOT_FROM_OBJECTSPEC); // preceeded by 'from' so basically anything with isContainer set
+        Slot fromObjectSpecSlot = intent.getSlot(SLOT_CONTAINERSPEC); // preceeded by 'from' so basically anything with isContainer set
         if (objectSpecSlot != null && objectSpecSlot.getValue() != null) {
             String objectSpec = objectSpecSlot.getValue();
             if (MudManagerHelper.playerGet(datastore, player, objectSpec) == null)
