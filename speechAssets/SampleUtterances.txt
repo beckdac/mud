@@ -118,12 +118,19 @@ SearchIntent search the {ContainerSpec}
 SearchIntent search in {ContainerSpec}
 SearchIntent search in the {ContainerSpec}
 HintIntent hint
+HintIntent hint please
 HintIntent give hint
+HintIntent give hint please
 HintIntent give us a hint
+HintIntent give us a hint please
 HintIntent give us hint
+HintIntent give us hint please
 HintIntent give me a hint
+HintIntent give me a hint please
 HintIntent give me hint
+HintIntent give me hint please
 HintIntent get hint
+HintIntent get hint please
 HintIntent hint {ObjectSpec}
 HintIntent give hint about {ObjectSpec}
 HintIntent give me hint about {ObjectSpec}
