@@ -9,7 +9,10 @@ import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Iterator;
 
 public class Test {
     private static final Logger log = LoggerFactory.getLogger(Test.class);
@@ -45,6 +48,68 @@ public class Test {
         MudManagerHelper.playerDrop(datastore, player, "key");
         MudManagerHelper.playerDrop(datastore, player, "key");
         MudManagerHelper.playerGet(datastore, player, "key 2");
+
+        dumpAllSlots();
+    }
+
+    private static void processItemMap(Map<String, MudItem>itemMap) {
+        Iterator it = itemMap.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            MudItem mudItem = (MudItem)pair.getValue();
+            String key = (String)pair.getKey();
+            ObjectSpec.add(key);
+            ObjectSpec.add(mudItem.getShortName());
+            if (mudItem.getIsIngestable()) {
+                IngestableSpec.add(key);
+                IngestableSpec.add(mudItem.getShortName());
+            }
+/*
+            if (mudItem.getIsLockable()) {
+                LockableSpec.add(key);
+                LockableSpec.add(mudItem.getShortName());
+            }
+*/
+            if (mudItem.getIsContainer()) {
+                ContainerSpec.add(key);
+                ContainerSpec.add(mudItem.getShortName());
+                processItemMap(mudItem.getContents());
+            }
+        }
+    }
+    static    HashSet<String> ObjectSpec = new HashSet<String>();
+    static    HashSet<String> ContainerSpec = new HashSet<String>();
+    static    HashSet<String> IngestableSpec = new HashSet<String>();
+    static    HashSet<String> ExitSpec = new HashSet<String>();
+    static    HashSet<String> LockableSpec = new HashSet<String>();
+
+    private static void dumpAllSlots() {
+
+        // iterate over rooms
+        for (MudRoom mudRoom : datastore.find(MudRoom.class)) {
+            processItemMap(mudRoom.getItems());
+        }
+        // iterate over players
+        for (MudPlayer mudPlayer : datastore.find(MudPlayer.class)) {
+            processItemMap(mudPlayer.getItems());
+        }
+
+        // dump
+        for (String s : ObjectSpec) {
+            System.out.println("OBJECT_LIST\t" + s);
+        }
+        for (String s : ContainerSpec) {
+            System.out.println("CONTAINER_LIST\t" + s);
+        }
+        for (String s : IngestableSpec) {
+            System.out.println("INGESTABLE_LIST\t" + s);
+        }
+        for (String s : ExitSpec) {
+            System.out.println("EXIT_LIST\t" + s);
+        }
+        for (String s : LockableSpec) {
+            System.out.println("LOCKABLE_LIST\t" + s);
+        }
     }
 
     private static void createWorld() {

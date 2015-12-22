@@ -99,6 +99,10 @@ public class MudRoom {
         return MudItemMapHelper.getItemListIfExistsByFullName(items, name);
     }
 
+    public Map<String, MudItem> getItems() {
+        return items;
+    }
+
     public boolean hasPlayer(MudPlayer player) {
         if (players.contains(player))
             return true;

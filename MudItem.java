@@ -111,6 +111,10 @@ public class MudItem {
         return MudItemMapHelper.removeItem(contents, name);
     }
 
+    public Map<String, MudItem> getContents() {
+        return contents;
+    }
+
     public boolean getIsVisible() {
         return isVisible;
     }

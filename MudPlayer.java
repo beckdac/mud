@@ -66,6 +66,10 @@ public class MudPlayer {
         return MudItemMapHelper.getItemListIfExistsByFullName(inventory, name);
     }
 
+    public Map<String, MudItem> getItems() {
+        return inventory;
+    }
+
     public int getInventorySize() {
         return inventory.size();
     }
