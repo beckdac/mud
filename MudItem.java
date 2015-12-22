@@ -14,6 +14,7 @@ public class MudItem {
     private String shortName;           // simple name, e.g. key, torch
     private String fullName;            // instead of just key, this could be "key for the red door"
     private String description;         // what is seen then the player looks at the item
+    private String hint;                // hint, if any
     private boolean isGetable;          // can the item be taken or gotten from wherever it is
     private boolean isContainer;        // can the item contain stuff
     @Embedded("contents")
@@ -64,6 +65,14 @@ public class MudItem {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getHint() {
+        return hint;
+    }
+
+    public void setHint(String hint) {
+        this.hint = hint;
     }
 
     public boolean getIsGetable() {
