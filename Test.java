@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.List;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.io.PrintWriter;
+import java.io.FileNotFoundException;
 
 public class Test {
     private static final Logger log = LoggerFactory.getLogger(Test.class);
@@ -84,6 +86,17 @@ public class Test {
         }
     }
 
+    private static void dumpHashSetToFile(HashSet<String> hashSet, String filename) {
+        try {
+            PrintWriter writer = new PrintWriter(filename, "UTF-8");
+            for (String s : hashSet)
+                writer.println(s);
+            writer.close();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
+
     private static void dumpAllSlots() {
         // iterate over rooms
         for (MudRoom mudRoom : datastore.find(MudRoom.class)) {
@@ -104,21 +117,11 @@ public class Test {
         }
 
         // dump
-        for (String s : ObjectSpec) {
-            System.out.println("LIST_OF_OBJECTS\t" + s);
-        }
-        for (String s : ContainerSpec) {
-            System.out.println("LIST_OF_CONTAINERS\t" + s);
-        }
-        for (String s : IngestableSpec) {
-            System.out.println("LIST_OF_INGESTABLES\t" + s);
-        }
-        for (String s : ExitSpec) {
-            System.out.println("LIST_OF_EXITS\t" + s);
-        }
-        for (String s : LockableSpec) {
-            System.out.println("LIST_OF_LOCKABLES\t" + s);
-        }
+        dumpHashSetToFile(ObjectSpec, "speechAssets/customSlotTypes/LIST_OF_OBJECTS.txt");
+        dumpHashSetToFile(ContainerSpec, "speechAssets/customSlotTypes/LIST_OF_CONTAINERS.txt");
+        dumpHashSetToFile(IngestableSpec, "speechAssets/customSlotTypes/LIST_OF_INGESTABLES.txt");
+        dumpHashSetToFile(ExitSpec, "speechAssets/customSlotTypes/LIST_OF_EXITS.txt");
+        dumpHashSetToFile(LockableSpec, "speechAssets/customSlotTypes/LIST_OF_LOCKABLES.txt");
     }
 
     private static void createWorld() {
