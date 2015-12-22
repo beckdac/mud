@@ -2,4 +2,4 @@
 
 mongodump --out world.json --db mud
 
-cat world.json
+find world.json -name '*.bson' -exec bsondump --pretty {} \;
