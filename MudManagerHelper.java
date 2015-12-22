@@ -20,11 +20,37 @@ public final class MudManagerHelper {
     private MudManagerHelper() {
     }
 
+    public static MudPlayer getPlayer(Datastore datastore, String userId) {
+        MudPlayer player = datastore.get(MudPlayer.class, userId);
+        if (player == null) {
+            player = playerNew(datastore, userId);
+            player.setIsNew(true);
+        }
+        player.updateLastSeen();
+        player.incrementInteractions();
+        datastore.save(player);
+
+        MudRoom room = player.getRoom();
+        room.updateLastVisited();
+        datastore.save(room);
+
+        log.info("player activated - userId = {} roomId = {}", userId, room.getId());
+
+        return player;
+    }
+
     public static MudPlayer playerNew(Datastore datastore, String userId) {
         MudPlayer player = new MudPlayer();
-        log.info("new player with userId = {}", userId);
+        MudRoom startRoom = datastore.get(MudRoom.class, MUD_ROOMID_START);
+        log.info("new player with userId = {} in roomId = {}", userId, startRoom.getId());
         player.setId(userId);
-        player.setRoom(datastore.get(MudRoom.class, MUD_ROOMID_START));
+        player.setRoom(startRoom);
+        datastore.save(player);
+
+        startRoom.addPlayer(player);
+        startRoom.updateLastVisited();
+        datastore.save(startRoom);
+
         return player;
     }
 
@@ -46,7 +72,7 @@ public final class MudManagerHelper {
         player.setRoom(newRoom);
         datastore.save(player);
 
-        log.debug("player {} moved from room {} to room {}", player.getId(), oldRoom.getId(), newRoom.getId());
+        log.info("player {} moved from room {} to room {}", player.getId(), oldRoom.getId(), newRoom.getId());
         return true;
     }
 
