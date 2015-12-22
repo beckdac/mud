@@ -1,6 +1,9 @@
 package mud;
 
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public final class MudItemMapHelper {
 
@@ -79,6 +82,19 @@ public final class MudItemMapHelper {
         if (hasItem(itemMap, name))
             return itemMap.get(name);
         return null;
+    }
+
+    public static List<MudItem> getItemListIfExistsByFullName(Map<String, MudItem> itemMap, String name) {
+        List<MudItem> mudItemList = new ArrayList<MudItem>();
+        Iterator it = itemMap.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            //pair.getKey()
+            MudItem mudItem = (MudItem)pair.getValue();
+            if (name == mudItem.getFullName())
+                mudItemList.add(mudItem);
+        }
+        return mudItemList;
     }
 
     public static boolean transferItem(String name, Map<String, MudItem> from, Map<String, MudItem> to) {

@@ -1,0 +1,131 @@
+{
+  "intents": [
+    {
+      "intent": "LookIntent",
+      "slots": [
+        {
+          "name": "ObjectSpec",
+          "type": "LIST_OF_OBJECTS"
+        }
+      ]
+    },
+    {
+      "intent": "PutIntent",
+      "slots": [
+        {
+          "name": "ObjectSpec",
+          "type": "LIST_OF_OBJECTS"
+        },
+        {
+          "name": "ContainerSpec",
+          "type": "LIST_OF_CONTAINERS"
+        }
+      ]
+    },
+    {
+      "intent": "GetIntent",
+      "slots": [
+        {
+          "name": "ObjectSpec",
+          "type": "LIST_OF_OBJECTS"
+        },
+        {
+          "name": "ContainerSpec",
+          "type": "LIST_OF_CONTAINERS"
+        }
+      ]
+    },
+    {
+      "intent": "DropIntent",
+      "slots": [
+        {
+          "name": "ObjectSpec",
+          "type": "LIST_OF_OBJECTS"
+        }
+      ]
+    },
+    {
+      "intent": "OpenIntent",
+      "slots": [
+        {
+          "name": "ContainerAndExitSpec",
+          "type": "LIST_OF_CONTAINERS_AND_EXITS"
+        }
+      ]
+    },
+    {
+      "intent": "UseIntent",
+      "slots": [
+        {
+          "name": "ObjectSpec",
+          "type": "LIST_OF_OBJECTS"
+        },
+        {
+          "name": "OnObjectSpec",
+          "type": "LIST_OF_OBJECTS"
+        }
+      ]
+    },
+    {
+      "intent": "SearchIntent",
+      "slots": [
+        {
+          "name": "ContainerSpec",
+          "type": "LIST_OF_CONTAINERS"
+        }
+      ]
+    },
+    {
+      "intent": "HintIntent",
+      "slots": [
+        {
+          "name": "ObjectSpec",
+          "type": "LIST_OF_OBJECTS"
+        }
+      ]
+    },
+    {
+      "intent": "IngestIntent",
+      "slots": [
+        {
+          "name": "IngestableSpec",
+          "type": "LIST_OF_INGESTABLES"
+        }
+      ]
+    },
+    {
+      "intent": "GoIntent",
+      "slots": [
+        {
+          "name": "ExitSpec",
+          "type": "LIST_OF_EXITS"
+        }
+      ]
+    },
+    {
+      "intent": "UnlockIntent",
+      "slots": [
+        {
+          "name": "LockableSpec",
+          "type": "LIST_OF_LOCKABLES"
+        },
+        {
+          "name": "ObjectSpec",
+          "type": "LIST_OF_OBJECTS"
+        }
+      ]
+    },
+    {
+      "intent": "ExitIntent",
+    },
+    {
+      "intent": "AMAZON.HelpIntent"
+    },
+    {
+      "intent": "AMAZON.StopIntent"
+    },
+    {
+      "intent": "AMAZON.CancelIntent"
+    }
+  ]
+}

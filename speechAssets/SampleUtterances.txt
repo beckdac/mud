@@ -1,0 +1,179 @@
+LookIntent look
+LookIntent look around
+LookIntent what can I see
+LookIntent what do I see
+LookIntent what is here
+LookIntent look at {ObjectSpec}
+LookIntent look at the {ObjectSpec}
+LookIntent look {ObjectSpec}
+LookIntent look in {ObjectSpec}
+LookIntent look in the {ObjectSpec}
+PutIntent put {ObjectSpec} in the {ContainerSpec}
+PutIntent put the {ObjectSpec} in the {ContainerSpec}
+PutIntent put {ObjectSpec} in {ContainerSpec}
+PutIntent put the {ObjectSpec} in {ContainerSpec}
+PutIntent move {ObjectSpec} to {ContainerSpec}
+PutIntent move {ObjectSpec} to the {ContainerSpec}
+PutIntent move the {ObjectSpec} to {ContainerSpec}
+PutIntent move the {ObjectSpec} to the {ContainerSpec}
+PutIntent transfer {ObjectSpec} to {ContainerSpec}
+PutIntent transfer {ObjectSpec} to the {ContainerSpec}
+PutIntent transfer the {ObjectSpec} to {ContainerSpec}
+PutIntent transfer the {ObjectSpec} to the {ContainerSpec}
+GetIntent get {ObjectSpec}
+GetIntent get a {ObjectSpec}
+GetIntent get the {ObjectSpec}
+GetIntent get {ObjectSpec} from room
+GetIntent get a {ObjectSpec} from room
+GetIntent get the {ObjectSpec} from room
+GetIntent get {ObjectSpec} from ground
+GetIntent get a {ObjectSpec} from ground
+GetIntent get the {ObjectSpec} from ground
+GetIntent get {ObjectSpec} from floor
+GetIntent get a {ObjectSpec} from floor
+GetIntent get the {ObjectSpec} from floor
+GetIntent get {ObjectSpec} from the room
+GetIntent get a {ObjectSpec} from the room
+GetIntent get the {ObjectSpec} from the room
+GetIntent get {ObjectSpec} from the ground
+GetIntent get a {ObjectSpec} from the ground
+GetIntent get the {ObjectSpec} from the ground
+GetIntent get {ObjectSpec} from the floor
+GetIntent get a {ObjectSpec} from the floor
+GetIntent get the {ObjectSpec} from the floor
+GetIntent get {ObjectSpec} from {ContainerSpec}
+GetIntent get the {ObjectSpec} from {ContainerSpec}
+GetIntent get a {ObjectSpec} from {ContainerSpec}
+GetIntent get {ObjectSpec} from the {ContainerSpec}
+GetIntent get the {ObjectSpec} from the {ContainerSpec}
+GetIntent get a {ObjectSpec} from the {ContainerSpec}
+GetIntent take {ObjectSpec}
+GetIntent take a {ObjectSpec}
+GetIntent take the {ObjectSpec}
+GetIntent take {ObjectSpec} from room
+GetIntent take a {ObjectSpec} from room
+GetIntent take the {ObjectSpec} from room
+GetIntent take {ObjectSpec} from ground
+GetIntent take a {ObjectSpec} from ground
+GetIntent take the {ObjectSpec} from ground
+GetIntent take {ObjectSpec} from floor
+GetIntent take a {ObjectSpec} from floor
+GetIntent take the {ObjectSpec} from floor
+GetIntent take {ObjectSpec} from the room
+GetIntent take a {ObjectSpec} from the room
+GetIntent take the {ObjectSpec} from the room
+GetIntent take {ObjectSpec} from the ground
+GetIntent take a {ObjectSpec} from the ground
+GetIntent take the {ObjectSpec} from the ground
+GetIntent take {ObjectSpec} from the floor
+GetIntent take a {ObjectSpec} from the floor
+GetIntent take the {ObjectSpec} from the floor
+GetIntent take {ObjectSpec} from {ContainerSpec}
+GetIntent take the {ObjectSpec} from {ContainerSpec}
+GetIntent take a {ObjectSpec} from {ContainerSpec}
+GetIntent take {ObjectSpec} from the {ContainerSpec}
+GetIntent take the {ObjectSpec} from the {ContainerSpec}
+GetIntent take a {ObjectSpec} from the {ContainerSpec}
+DropIntent drop {ObjectSpec}
+DropIntent drop {ObjectSpec} on the floor
+DropIntent drop {ObjectSpec} to the floor
+DropIntent drop {ObjectSpec} on floor
+DropIntent drop {ObjectSpec} to floor
+DropIntent drop {ObjectSpec} on the ground
+DropIntent drop {ObjectSpec} to the ground
+DropIntent drop {ObjectSpec} on ground
+DropIntent drop {ObjectSpec} to ground
+DropIntent drop a {ObjectSpec}
+DropIntent drop a {ObjectSpec} on the floor
+DropIntent drop a {ObjectSpec} to the floor
+DropIntent drop a {ObjectSpec} on floor
+DropIntent drop a {ObjectSpec} to floor
+DropIntent drop a {ObjectSpec} on the ground
+DropIntent drop a {ObjectSpec} to the ground
+DropIntent drop a {ObjectSpec} on ground
+DropIntent drop a {ObjectSpec} to ground
+DropIntent drop the {ObjectSpec}
+DropIntent drop the {ObjectSpec} on the floor
+DropIntent drop the {ObjectSpec} to the floor
+DropIntent drop the {ObjectSpec} on floor
+DropIntent drop the {ObjectSpec} to floor
+DropIntent drop the {ObjectSpec} on the ground
+DropIntent drop the {ObjectSpec} to the ground
+DropIntent drop the {ObjectSpec} on ground
+DropIntent drop the {ObjectSpec} to ground
+OpenIntent open {ContainerAndExitSpec}
+OpenIntent open the {ContainerAndExitSpec}
+UseIntent use {ObjectSpec}
+UseIntent use a {ObjectSpec}
+UseIntent use the {ObjectSpec}
+UseIntent use {ObjectSpec} on {OnObjectSpec}
+UseIntent use a {ObjectSpec} on {OnObjectSpec}
+UseIntent use the {ObjectSpec} on {OnObjectSpec}
+SearchIntent search
+SearchIntent search the room
+SearchIntent search room
+SearchIntent search here
+SearchIntent search {ContainerSpec}
+SearchIntent search the {ContainerSpec}
+SearchIntent search in {ContainerSpec}
+SearchIntent search in the {ContainerSpec}
+HintIntent hint
+HintIntent give hint
+HintIntent give us a hint
+HintIntent give us hint
+HintIntent give me a hint
+HintIntent give me hint
+HintIntent get hint
+HintIntent hint {ObjectSpec}
+HintIntent give hint about {ObjectSpec}
+HintIntent give me hint about {ObjectSpec}
+HintIntent give me a hint about {ObjectSpec}
+HintIntent give me the hint about {ObjectSpec}
+HintIntent get hint on {ObjectSpec}
+HintIntent get hint about {ObjectSpec}
+HintIntent give hint about the {ObjectSpec}
+HintIntent give me hint about the {ObjectSpec}
+HintIntent give me a hint about the {ObjectSpec}
+HintIntent give me the hint about the {ObjectSpec}
+HintIntent get hint on the {ObjectSpec}
+HintIntent get hint about the {ObjectSpec}
+IngestIntent drink {IngestableSpec}
+IngestIntent drink from {IngestableSpec}
+IngestIntent drink the {IngestableSpec}
+IngestIntent drink from the {IngestableSpec}
+IngestIntent drink a {IngestableSpec}
+IngestIntent drink some {IngestableSpec}
+IngestIntent drink some of {IngestableSpec}
+IngestIntent drink some of the {IngestableSpec}
+IngestIntent drink portion {IngestableSpec}
+IngestIntent drink portion of {IngestableSpec}
+IngestIntent drink portion of the {IngestableSpec}
+IngestIntent drink a portion {IngestableSpec}
+IngestIntent drink a portion of {IngestableSpec}
+IngestIntent drink a portion of the {IngestableSpec}
+IngestIntent eat {IngestableSpec}
+IngestIntent eat from {IngestableSpec}
+IngestIntent eat the {IngestableSpec}
+IngestIntent eat from the {IngestableSpec}
+IngestIntent eat a {IngestableSpec}
+IngestIntent eat some {IngestableSpec}
+IngestIntent eat some of {IngestableSpec}
+IngestIntent eat some of the {IngestableSpec}
+IngestIntent eat portion {IngestableSpec}
+IngestIntent eat portion of {IngestableSpec}
+IngestIntent eat portion of the {IngestableSpec}
+IngestIntent eat a portion {IngestableSpec}
+IngestIntent eat a portion of {IngestableSpec}
+IngestIntent eat a portion of the {IngestableSpec}
+UnlockIntent unlock {LockableSpec}
+UnlockIntent unlock the {LockableSpec}
+UnlockIntent unlock {LockableSpec} with {WithObjectSpec}
+UnlockIntent unlock the {LockableSpec} with {WithObjectSpec}
+UnlockIntent unlock {LockableSpec} with the {WithObjectSpec}
+UnlockIntent unlock the {LockableSpec} with the {WithObjectSpec}
+UnlockIntent use {WithObjectSpec} to unlock {LockableSpec}
+UnlockIntent use {WithObjectSpec} to unlock a {LockableSpec}
+UnlockIntent use {WithObjectSpec} to unlock the {LockableSpec}
+UnlockIntent use the {WithObjectSpec} to unlock {LockableSpec}
+UnlockIntent use the {WithObjectSpec} to unlock a {LockableSpec}
+UnlockIntent use the {WithObjectSpec} to unlock the {LockableSpec}
