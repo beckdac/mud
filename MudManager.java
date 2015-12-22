@@ -114,47 +114,31 @@ public class MudManager {
         Slot objectSpecSlot = intent.getSlot(SLOT_OBJECTSPEC);
         if (objectSpecSlot != null && objectSpecSlot.getValue() != null) {
             String objectSpec = objectSpecSlot.getValue();
-            String playerSpeechOutput = "", roomSpeechOutput = "", exitSpeechOutput = "";
-            int found = 0;
-            // go through precedence chain looking for something matching the where slot
-            // player
-            MudItem item = playerItemSearch(objectSpec);
-            if (item != null && item.isVisibleTo(player)) {
-                ++found;
-                playerSpeechOutput = item.getDescription();
-            }
-            // room
-            item = roomItemSearch(objectSpec);
-            if (item != null && item.isVisibleTo(player)) {
-                ++found;
-                roomSpeechOutput = item.getDescription();
-            }
-            // exits
-            MudExit exit = player.getRoom().getExitIfExists(objectSpec);
-            if (exit != null && exit.isVisibleTo(player)) {
-                ++found;
-                exitSpeechOutput += exit.getDestination().getDescription();
-            }
-            if (found == 0) {
-                // nothing matched, show the room description
-                speechOutput += player.getRoom().getDescription();
-            } else if (found == 1) {
-                if (playerSpeechOutput != null)
-                    speechOutput += playerSpeechOutput;
-                else if (roomSpeechOutput != null)
-                    speechOutput += roomSpeechOutput;
+            // search items and exits on player and room
+            MudItemExitSearchResult searchResult = 
+                    MudManagerHelper.playerItemExitSearch(player, objectSpec,
+                            null, null, true, null,
+                            null, null, null, true,
+                            true, true, false);
+            // report search results
+            if (searchResult.found == 0) {
+                speechOutput += String.format(randomFrom(OBJECT_NOT_FOUND_LIST), objectSpec);
+            } else if (searchResult.found == 1) {
+                if (searchResult.playerItems.size() > 0)
+                    speechOutput += searchResult.playerItems.get(0).getDescription();
+                else if (searchResult.playerItems.size() > 0)
+                    speechOutput += searchResult.roomItems.get(0).getDescription();
                 else
-                    speechOutput += exitSpeechOutput;
+                    speechOutput += searchResult.roomExits.get(0).getDescription();
             } else {
-                speechOutput += String.format("I found %d items matching '%s'.", found, objectSpec);
-                if (playerSpeechOutput != null) {
-                    speechOutput += "In your inventory: " + playerSpeechOutput;
-                }
-                if (roomSpeechOutput != null) {
-                    speechOutput += "In the room: " + roomSpeechOutput;
-                }
-                if (exitSpeechOutput != null) {
-                    speechOutput += "There is also an exit: " + exitSpeechOutput;
+                // report how many found in each set, not too helpful right now :(
+                speechOutput += String.format("OK, I found %d things called '%s'.", found, objectSpec);
+                if (searchResult.playerItems.size() > 0) {
+                    speechOutput += Integer.toString(searchResult.playerItems.size()) " in your inventory.";
+                } else if (searchResult.playerItems.size() > 0) {
+                    speechOutput += Integer.toString(searchResult.roomItems.size()) " nearby.";
+                } else {
+                    speechOutput += "And " + Integer.toString(searchresult.roomExits.size()) + "exits";
                 }
             }
         } else 
@@ -265,10 +249,7 @@ public class MudManager {
         Slot objectSpecSlot = intent.getSlot(SLOT_OBJECTSPEC);          // any object in inventory
         if (objectSpecSlot != null && objectSpecSlot.getValue() != null) {
             String objectSpec = objectSpecSlot.getValue();
-            if (MudManagerHelper.playerDrop(datastore, player, objectSpec))
-                speechOutput += randomFrom(SUCCESS_LIST);
-            else
-                speechOutput += String.format(randomFrom(OBJECT_NOT_FOUND_LIST), objectSpec);
+            speechOutput += "unimplemented";
         } else {
             speechOutput += player.getRoom().getHint();
         }

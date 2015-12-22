@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class MudItemExitSearchResult {
+    int found;
     List<MudItem> playerItems;
     List<MudItem> roomItems;
     List<MudExit> roomExits;

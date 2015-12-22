@@ -197,6 +197,7 @@ public final class MudManagerHelper {
             if (addExit)
                 result.roomExits.add(mudExit);
         }
+        result.found = result.playerItems.size() + result.roomItems.size() + result.roomExits.size();
         return result;
     }
 }
