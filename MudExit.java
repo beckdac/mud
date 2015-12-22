@@ -13,7 +13,10 @@ public class MudExit {
     private MudRoom destination;
     private String description;
     private boolean isLockable;
-    private boolean isLocked;
+    private boolean isSharedLock;       // determines if the door lock state is share between all players
+    private boolean isLocked;           // if sharedlockstate by all players this contols the lock
+    @Reference
+    private List<MudPlayer> unlockedTo; // if player in this list then the door is unlocked to them
     private boolean isVisible;          // if this is false, then only players in the visibleTo array can see this item
     @Reference
     private List<MudPlayer> visibleTo;  // if not visible, list of who can see it
@@ -23,7 +26,9 @@ public class MudExit {
     public MudExit() {
         description = "You can't see to well that way.";
         isLockable = false;
+        isSharedLock = true;
         isLocked = false;
+        unlockedTo = new ArrayList<MudPlayer>();
         isVisible = true;
         visibleTo = new ArrayList<MudPlayer>();
         tags = new ArrayList<String>();
@@ -53,12 +58,36 @@ public class MudExit {
         this.isLockable = isLockable;
     }
 
-    public boolean getIsLocked() {
-        return isLocked;
+    public boolean getIsSharedLock() {
+        return isSharedLock;
     }
 
-    public void setIsLocked(boolean isLocked) {
-        this.isLocked = isLocked;
+    public void setIsSharedLock(boolean isSharedLock) {
+        this.isSharedLock = isSharedLock;
+    }
+
+    public boolean getIsLocked(MudPlayer player) {
+        if (!isLockable)
+            return false;
+        if (isSharedLock)
+            return isLocked;
+        if (isLocked && unlockedTo.contains(player))
+            return false;
+        return true;
+    }
+
+    public void setIsLocked(MudPlayer player, boolean isLocked) {
+        if (isSharedLock)
+            this.isLocked = isLocked;
+        else {
+            if (isLocked) {
+                if (unlockedTo.contains(player))
+                    unlockedTo.remove(player);
+            } else {
+                if (!unlockedTo.contains(player))
+                    unlockedTo.add(player);
+            }
+        }
     }
 
     public boolean getIsVisible() {
@@ -75,9 +104,14 @@ public class MudExit {
         return false;
     }
 
-    public void setIsVisibleTo(MudPlayer player) {
-        if (!getIsVisibleTo(player))
-            visibleTo.add(player);
+    public void setIsVisibleTo(MudPlayer player, boolean isVisible) {
+        if (isVisible) {
+            if (!visibleTo.contains(player))
+                visibleTo.add(player);
+        } else {
+            if (visibleTo.contains(player))
+                visibleTo.remove(player);
+        }
     }
 
     public boolean hasTag(String tag) {
