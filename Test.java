@@ -6,9 +6,14 @@ import org.mongodb.morphia.Morphia;
 
 import org.bson.types.ObjectId;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 
 public class Test {
+    private static final Logger log = LoggerFactory.getLogger(Test.class);
+
     private static final String MONGO_DATABASE = "mud";
 
     private static final ObjectId MUD_ROOMID_START     = new ObjectId("000000000000000000000000");
@@ -31,17 +36,7 @@ public class Test {
             startRoom = datastore.get(MudRoom.class, MUD_ROOMID_START);
         }
 
-        MudPlayer player = datastore.get(MudPlayer.class, userId);
-        if (player == null) {
-            System.out.println("Ahh, a new player.  Welcome.");
-            player = MudManagerHelper.playerNew(datastore, userId);
-        }
-        MudRoom currentRoom = player.getRoom();
-        currentRoom.updateLastVisited();
-        player.updateLastSeen();
-        datastore.save(player);
-        datastore.save(currentRoom);
-        System.out.println(currentRoom.getDescription());
+        MudPlayer player = MudManagerHelper.getPlayer(datastore, userId);
 
         MudManagerHelper.playerMove(datastore, player, "north");
         MudManagerHelper.playerGet(datastore, player, "key 2");
@@ -77,7 +72,7 @@ public class Test {
 
         northRoom = new MudRoom();
         northRoom.setDescription("You are standing on a thin ledge that looks down into a great chasm with no bottom in sight.");
-        startRoom.setHint("Congratulations.  You won the game.");
+        northRoom.setHint("Congratulations.  You won the game.");
         // winner's trophy
         mudItem = MudManagerHelper.itemNew("trophy", "winner's trophy", "The trophy is made of cheap tin and is poorly mounted to a plate that reads: 'Congratulations. You won the game.");
         mudItem.setIsGetable(false);
