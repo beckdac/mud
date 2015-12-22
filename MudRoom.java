@@ -119,9 +119,9 @@ public class MudRoom {
             players.add(player);
     }
 
-//    public List<MudPlayer> getPlayers() {
-//        return players;
-//    }
+    public List<MudPlayer> getPlayers() {
+        return players;
+    }
 
     public Date getLastVisited() {
         return lastVisited;

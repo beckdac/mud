@@ -26,6 +26,13 @@ public class Test {
     private static Morphia morphia;
     private static Datastore datastore;
 
+    // for dumping the custom slot values
+    static HashSet<String> ObjectSpec = new HashSet<String>();
+    static HashSet<String> ContainerSpec = new HashSet<String>();
+    static HashSet<String> IngestableSpec = new HashSet<String>();
+    static HashSet<String> ExitSpec = new HashSet<String>();
+    static HashSet<String> LockableSpec = new HashSet<String>();
+
     public static void main(String[] args) {
         morphia = new Morphia();
         morphia.map(MudPlayer.class).map(MudRoom.class).map(MudItem.class).map(MudExit.class);
@@ -77,17 +84,17 @@ public class Test {
             }
         }
     }
-    static    HashSet<String> ObjectSpec = new HashSet<String>();
-    static    HashSet<String> ContainerSpec = new HashSet<String>();
-    static    HashSet<String> IngestableSpec = new HashSet<String>();
-    static    HashSet<String> ExitSpec = new HashSet<String>();
-    static    HashSet<String> LockableSpec = new HashSet<String>();
 
     private static void dumpAllSlots() {
 
         // iterate over rooms
         for (MudRoom mudRoom : datastore.find(MudRoom.class)) {
             processItemMap(mudRoom.getItems());
+            Iterator it = mudRoom.getExits().entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry pair = (Map.Entry)it.next();
+                ExitSpec.add((String)pair.getKey());
+            }
         }
         // iterate over players
         for (MudPlayer mudPlayer : datastore.find(MudPlayer.class)) {
@@ -96,19 +103,19 @@ public class Test {
 
         // dump
         for (String s : ObjectSpec) {
-            System.out.println("OBJECT_LIST\t" + s);
+            System.out.println("LIST_OF_OBJECTS\t" + s);
         }
         for (String s : ContainerSpec) {
-            System.out.println("CONTAINER_LIST\t" + s);
+            System.out.println("LIST_OF_CONTAINERS\t" + s);
         }
         for (String s : IngestableSpec) {
-            System.out.println("INGESTABLE_LIST\t" + s);
+            System.out.println("LIST_OF_INGESTABLES\t" + s);
         }
         for (String s : ExitSpec) {
-            System.out.println("EXIT_LIST\t" + s);
+            System.out.println("LIST_OF_EXITS\t" + s);
         }
         for (String s : LockableSpec) {
-            System.out.println("LOCKABLE_LIST\t" + s);
+            System.out.println("LIST_OF_LOCKABLES\t" + s);
         }
     }
 
