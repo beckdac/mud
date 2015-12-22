@@ -69,14 +69,14 @@ public class MudExit {
         this.isVisible = isVisible;
     }
 
-    public boolean isVisibleTo(MudPlayer player) {
+    public boolean getIsVisibleTo(MudPlayer player) {
         if (isVisible || visibleTo.contains(player))
             return true;
         return false;
     }
 
     public void setIsVisibleTo(MudPlayer player) {
-        if (!isVisibleTo(player))
+        if (!getIsVisibleTo(player))
             visibleTo.add(player);
     }
 
