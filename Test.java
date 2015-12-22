@@ -27,40 +27,14 @@ public class Test {
         // if the starting room does not exist create the basic world
         MudRoom startRoom = datastore.get(MudRoom.class, MUD_ROOMID_START);
         if (startRoom == null) {
-            MudItem mudItem;
-
-            // the room where everything begins
-            startRoom = new MudRoom();
-            startRoom.setId(MUD_ROOMID_START);
-            startRoom.setDescription("You are in a cold and damp stone room.  The only light is coming from a crack in the ceiling above.");
-            startRoom.setHint("Try going north and getting a key from the key dispenser? and opening the east door with it.");
-            // a sign to look at
-            mudItem = itemNew("sign", "help sign", "The sign reads: say 'help me' for instructions or, if you are feeling lucky, say 'hint please'.", false, false, true);
-            startRoom.addItem(mudItem);
-            datastore.save(startRoom);
-
-            MudRoom northRoom = new MudRoom();
-            northRoom.setDescription("You are standing on a thin ledge that looks down into a great chasm with no bottom in sight.");
-            startRoom.setHint("Why not get a key from the key dispenser and using it a door in the south room?");
-            mudItem = itemNew("key dispenser", "key dispenser", "You see a matte black forearm length cylinder in the center of the room with a pulsing blue light eminating from the top.  It has an engraving on the top that says 'use me' or 'get key from me'.", false, false, true);
-            northRoom.addItem(mudItem);
-            datastore.save(northRoom);
-
-            MudExit northExit = new MudExit();
-            northExit.setDestination(northRoom);
-            startRoom.getExits().put("north", northExit);
-            datastore.save(startRoom);
-
-            MudExit southExit = new MudExit();
-            southExit.setDestination(startRoom);
-            northRoom.getExits().put("south", southExit);
-            datastore.save(northRoom);
+            createWorld();
+            startRoom = datastore.get(MudRoom.class, MUD_ROOMID_START);
         }
 
         MudPlayer player = datastore.get(MudPlayer.class, userId);
         if (player == null) {
             System.out.println("Ahh, a new player.  Welcome.");
-            player = playerNew();
+            player = MudManagerHelper.playerNew(datastore, userId);
         }
         MudRoom currentRoom = player.getRoom();
         currentRoom.updateLastVisited();
@@ -69,66 +43,75 @@ public class Test {
         datastore.save(currentRoom);
         System.out.println(currentRoom.getDescription());
 
-        playerMove(player, "north");
-        playerGet(player, "key 2");
-        playerGet(player, "key");
-        playerMove(player, "south");
-        playerDrop(player, "key");
-        playerDrop(player, "key");
-        playerGet(player, "key 2");
+        MudManagerHelper.playerMove(datastore, player, "north");
+        MudManagerHelper.playerGet(datastore, player, "key 2");
+        MudManagerHelper.playerGet(datastore, player, "key");
+        MudManagerHelper.playerMove(datastore, player, "south");
+        MudManagerHelper.playerDrop(datastore, player, "key");
+        MudManagerHelper.playerDrop(datastore, player, "key");
+        MudManagerHelper.playerGet(datastore, player, "key 2");
     }
 
-    private static MudPlayer playerNew() {
-        MudPlayer player = new MudPlayer();
-        player.setId(userId);
-        player.setRoom(datastore.get(MudRoom.class, MUD_ROOMID_START));
-        return player;
-    }
+    private static void createWorld() {
+        MudItem mudItem, container;
+        MudRoom startRoom, northRoom;
 
-    private static boolean playerMove(MudPlayer player, String exit) {
-        MudRoom currentRoom = player.getRoom();
-        
-        if (player.useExit(exit)) {
-            datastore.save(player);
-            datastore.save(currentRoom);
-            currentRoom = player.getRoom();
-            datastore.save(currentRoom);
-            System.out.println(currentRoom.getDescription());
-            return true;
-        }
-        return false;
-    }
+        // the room where everything begins
+        startRoom = new MudRoom();
+        startRoom.setId(MUD_ROOMID_START);
+        startRoom.setDescription("You are in a cold stone room.");
+        startRoom.setHint("Try getting a key from the key dispenser? and opening the north door with it.");
+        // a sign to look at
+        mudItem = MudManagerHelper.itemNew("sign", "help sign", "The sign reads: say 'help me' for instructions or say 'hint please'.");
+        mudItem.setIsGetable(false);
+        startRoom.addItem(mudItem);
+        // a key dispenser
+        mudItem = MudManagerHelper.itemNew("key dispenser", "key dispenser", "You see a matte black forearm length cylinder in the center of the room with a pulsing blue light eminating from the top.  It has instructions that read: Say 'get key from key dispenser'.");
+        mudItem.setIsGetable(false);
+        mudItem.setIsContainer(true);
+        mudItem.setHint("To use the key dispenser, say the phrase: 'get key from key dispenser'.");
+        mudItem.addTagIfNotExists("dispenser");
+        startRoom.addItem(mudItem);
+        // save the room
+        datastore.save(startRoom);
 
-    private static boolean playerDrop(MudPlayer player, String item) {
-        if (player.dropItem(item)) {
-            datastore.save(player);
-            datastore.save(player.getRoom());
-            return true;
-        }
-        return false;
-    }
+        northRoom = new MudRoom();
+        northRoom.setDescription("You are standing on a thin ledge that looks down into a great chasm with no bottom in sight.");
+        startRoom.setHint("Congratulations.  You won the game.");
+        // winner's trophy
+        mudItem = MudManagerHelper.itemNew("trophy", "winner's trophy", "The trophy is made of cheap tin and is poorly mounted to a plate that reads: 'Congratulations. You won the game.");
+        mudItem.setIsGetable(false);
+        northRoom.addItem(mudItem);
+        // chest
+        container = MudManagerHelper.itemNew("chest", "wooden chest", "A simple wooden chest.  I wonder what's inside.");
+        container.setIsGetable(false);
+        container.setIsContainer(true);
+        container.setHint("Try the phrases 'look in chest', 'put something in chest', or 'get something from chest'.");
+        northRoom.addItem(container);
+        // cake
+        mudItem = MudManagerHelper.itemNew("cake", "chocolate cake", "A rich chocolate cake with dark chocolate frosting. Mmmm... Tasty.");
+        mudItem.setIsIngestable(true);
+        mudItem.setHint("Try 'eat cake' or look at it to see how many portions are left.");
+        container.addContent(mudItem);
+        // trashcan
+        mudItem = MudManagerHelper.itemNew("trashcan", "bottomless trashcan", "This trashcan has no bottom!  Anything you put in it will disapear.");
+        mudItem.setIsGetable(false);
+        mudItem.setIsContainer(true);
+        mudItem.setHint("To use the trashcan, say the phrase: 'put key in trashcan'.");
+        mudItem.addTagIfNotExists("trashcan");
+        northRoom.addItem(mudItem);
+        datastore.save(northRoom);
 
-    private static MudItem itemNew(String shortName, String fullName, String description, 
-        boolean isGetable, boolean isContainer, boolean isVisible) {
-        MudItem mudItem = new MudItem();
-        mudItem.setShortName(shortName);
-        mudItem.setFullName(fullName);
-        mudItem.setDescription(description);
-        mudItem.setIsGetable(isGetable);
-        mudItem.setIsContainer(isContainer);
-        mudItem.setIsVisible(isVisible);
-        return mudItem;
-    }
+        MudExit northExit = new MudExit();
+        northExit.setDestination(northRoom);
+        northExit.setIsLockable(true);
+        northExit.setIsSharedLock(false);
+        startRoom.getExits().put("north", northExit);
+        datastore.save(startRoom);
 
-    private static MudItem playerGet(MudPlayer player, String name) {
-        MudRoom currentRoom = player.getRoom();
-        MudItem mudItem = currentRoom.getItemIfExists(name);
-        if (mudItem != null && mudItem.getIsGetable()) {
-            currentRoom.removeItem(name);
-            player.addItem(mudItem);
-            datastore.save(player);
-            datastore.save(currentRoom);
-        }
-        return mudItem;
+        MudExit southExit = new MudExit();
+        southExit.setDestination(startRoom);
+        northRoom.getExits().put("south", southExit);
+        datastore.save(northRoom);
     }
 }
