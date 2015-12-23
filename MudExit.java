@@ -49,6 +49,10 @@ public class MudExit {
         return lock.getIsLockedTo(player);
     }
 
+    public String getLockedMessage() {
+        return lock.getLockedMessage();
+    }
+
     public boolean hasLock() {
         if (lock != null)
             return true;

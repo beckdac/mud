@@ -38,9 +38,6 @@ public class MudSpeechlet implements Speechlet {
             throws SpeechletException {
         log.info("onSessionStarted requestId={}, sessionId={}", request.getRequestId(),
                 session.getSessionId());
-
-        initializeManager(session);
-        mudManager.startSession(session);
     }
 
     @Override
@@ -50,7 +47,7 @@ public class MudSpeechlet implements Speechlet {
                 session.getSessionId());
 
         initializeManager(session);
-        mudManager.startSession(session);
+        mudManager.joinSession(session);
 
         return mudManager.getLaunchResponse(request, session);
     }
@@ -62,7 +59,7 @@ public class MudSpeechlet implements Speechlet {
                 session.getSessionId());
 
         initializeManager(session);
-        mudManager.startSession(session);
+        mudManager.joinSession(session);
 
         Intent intent = request.getIntent();
         String intentName = (intent != null) ? intent.getName() : null;

@@ -58,14 +58,16 @@ public class Test {
                         null, null, null, true,
                         true, true, false);
         log.info("found {} items total matching {}", searchResult.found, itemName);
-
-        MudManagerHelper.playerMove(datastore, player, "north");
-        MudManagerHelper.playerGet(datastore, player, "key 2");
-        MudManagerHelper.playerGet(datastore, player, "key");
-        MudManagerHelper.playerMove(datastore, player, "south");
-        MudManagerHelper.playerDrop(datastore, player, "key");
-        MudManagerHelper.playerDrop(datastore, player, "key");
-        MudManagerHelper.playerGet(datastore, player, "key 2");
+        
+        MudExit mudExit = MudManagerHelper.playerGetExit(datastore, player, "north");
+        MudManagerHelper.playerMove(datastore, player, mudExit);
+        //MudManagerHelper.playerGet(datastore, player, "key 2");
+        //MudManagerHelper.playerGet(datastore, player, "key");
+        mudExit = MudManagerHelper.playerGetExit(datastore, player, "south");
+        MudManagerHelper.playerMove(datastore, player, mudExit);
+        //MudManagerHelper.playerDrop(datastore, player, "key");
+        //MudManagerHelper.playerDrop(datastore, player, "key");
+        //MudManagerHelper.playerGet(datastore, player, "key 2");
 
         dumpAllSlots();
     }
@@ -140,17 +142,22 @@ public class Test {
         startRoom = new MudRoom();
         startRoom.setId(MUD_ROOMID_START);
         startRoom.setDescription("You are in a cold stone room.");
-        startRoom.setHint("Try getting a key from the key dispenser? and opening the north door with it.");
+        startRoom.setHint("Try taking a key from the key dispenser? and opening the north door with it.");
         // a sign to look at
         mudItem = MudManagerHelper.itemNew("sign", "help sign", "The sign reads: say 'help me' for instructions or say 'hint please'.");
         mudItem.setIsGetable(false);
+        mudItem.setNotGetableMessage("The sign is firmly anchored to the ground.");
         startRoom.addItem(mudItem);
         // a key dispenser
         mudItem = MudManagerHelper.itemNew("key dispenser", "key dispenser", "You see a matte black forearm length cylinder in the center of the room with a pulsing blue light eminating from the top.  It has instructions that read: Say 'get key from key dispenser'.");
         mudItem.setIsGetable(false);
+        mudItem.setNotGetableMessage("The key dispenser is here for everyone.  Best leave it be.");
         mudItem.setIsContainer(true);
-        mudItem.setHint("To use the key dispenser, say the phrase: 'get key from key dispenser'.");
+        mudItem.setHint("To use the key dispenser, say the phrase: 'take key from key dispenser'.");
         mudItem.tags.addTag("dispenser");
+        MudItem subItem = MudManagerHelper.itemNew("key", "brass key", "A simple brass key is here.");
+        subItem.setHint("Take this key and use it to unlock something.");
+        mudItem.addContent(subItem);
         startRoom.addItem(mudItem);
         // save the room
         datastore.save(startRoom);
@@ -161,10 +168,12 @@ public class Test {
         // winner's trophy
         mudItem = MudManagerHelper.itemNew("trophy", "winner's trophy", "The trophy is made of cheap tin and is poorly mounted to a plate that reads: 'Congratulations. You won the game.");
         mudItem.setIsGetable(false);
+        mudItem.setNotGetableMessage("It really is a pathetic trophy.  It would probably fall apart if you tried to pick it up.");
         northRoom.addItem(mudItem);
         // chest
         container = MudManagerHelper.itemNew("chest", "wooden chest", "A simple wooden chest.  I wonder what's inside.");
         container.setIsGetable(false);
+        mudItem.setNotGetableMessage("You are not strong enough to lift that chest.  Try something else He-Man.");
         container.setIsContainer(true);
         container.setHint("Try the phrases 'look in chest', 'put something in chest', or 'get something from chest'.");
         northRoom.addItem(container);
@@ -176,6 +185,7 @@ public class Test {
         // trashcan
         mudItem = MudManagerHelper.itemNew("trashcan", "bottomless trashcan", "This trashcan has no bottom!  Anything you put in it will disapear.");
         mudItem.setIsGetable(false);
+        mudItem.setNotGetableMessage("Ahh... can't the bottom would fall off the bottomless trashcan if I did that!");
         mudItem.setIsContainer(true);
         mudItem.setHint("To use the trashcan, say the phrase: 'put key in trashcan'.");
         mudItem.tags.addTag("trashcan");

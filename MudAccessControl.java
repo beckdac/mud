@@ -15,7 +15,7 @@ public class MudAccessControl {
     public final MudTags tags;            // functionality tags
 
     public MudAccessControl() {
-        isShared = false;
+        isShared = true;
         isRestricted = false;
         accessList = new HashSet<MudPlayer>();
         tags = new MudTags();

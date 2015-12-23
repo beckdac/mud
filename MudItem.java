@@ -15,6 +15,7 @@ public class MudItem {
     private String description;         // what is seen then the player looks at the item
     private String hint;                // hint, if any
     private boolean isGetable;          // can the item be taken or gotten from wherever it is
+    private String notGetableMessage;   // what to display when someone tries to get it when isGetable = false
     private boolean isContainer;        // can the item contain stuff
     @Embedded("contents")
     private Map<String, MudItem> contents;// contents of the container if above is true
@@ -32,6 +33,7 @@ public class MudItem {
         fullName = "shapeless thing";
         description = "a shapeless fob without color";
         isGetable = true;
+        notGetableMessage = "strangely, that is immovable";
         isContainer = false;
         contents = new HashMap<String, MudItem>();
         visibility = new MudAccessControl();
@@ -81,6 +83,14 @@ public class MudItem {
         this.isGetable = isGetable;
     }
 
+    public String getNotGetableMessage() {
+        return notGetableMessage;
+    }
+
+    public void setNotGetableMessage(String notGetableMessage) {
+        this.notGetableMessage = notGetableMessage;
+    }
+
     public boolean getIsContainer() {
         return isContainer;
     }
@@ -107,6 +117,12 @@ public class MudItem {
         if (!isContainer)
             return null;
         return MudItemMapHelper.removeItem(contents, name);
+    }
+
+    public MudItem getContent(String name) {
+        if (!isContainer)
+            return null;
+        return MudItemMapHelper.getItem(contents, name);
     }
 
     public Map<String, MudItem> getContents() {

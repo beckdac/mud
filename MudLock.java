@@ -14,6 +14,7 @@ import java.util.HashSet;
 public class MudLock {
     @Id private ObjectId id;
     private String description;
+    private String lockedMessage;
     public final MudAccessControl access;     // lock / unlock
     private MudAccessControl visibility;      // can the lock be seen
     public final MudTags tags;                // functionality tags
@@ -21,6 +22,7 @@ public class MudLock {
     private int timesUsed;
 
     public MudLock() {
+        lockedMessage = "That exit is locked.";
         access = new MudAccessControl();
         visibility = new MudAccessControl();
         tags = new MudTags();
@@ -32,6 +34,14 @@ public class MudLock {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getLockedMessage() {
+        return lockedMessage;
+    }
+
+    public void setLockedMessage(String lockedMessage) {
+        this.lockedMessage = lockedMessage;
     }
 
     public boolean getIsLockedTo(MudPlayer player) {

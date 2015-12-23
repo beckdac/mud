@@ -42,30 +42,30 @@ public class MudManager {
 
     private static <T> T randomFrom(T... items) { return items[new Random().nextInt(items.length)]; }
     private static final String[] WHAT_NEXT_Q_LIST = {
-            "What do you want to do now?",
-            "Tell me what you want to do next?",
-            "What do you want to do next?",
-            "OK, what next?",
-            "What now?"
+            "<p>What do you want to do now?</p>",
+            "<p>Tell me what you want to do next?</p>",
+            "<p>What do you want to do next?</p>",
+            "<p>OK, what next?</p>",
+            "<p>What now?</p>"
         };
     private static final String[] REPROMPT_Q_LIST = {
-            "Still there? Why not try saying 'inventory' for something to 'use'.",
-            "For instructions, please say 'help me'.",
-            "You can look again, take some other action, ask for help or a hint.",
-            "Why not try taking another look around or doing a search?"
+            "<p>Still there? Why not try saying 'inventory' for something to 'use'.</p>",
+            "<p>For instructions, please say 'help me'.</p>",
+            "<p>You can look again, take some other action, ask for help or a hint.</p>",
+            "<p>Why not try taking another look around or doing a search?</p>"
         };
     private static final String[] SUCCESS_LIST = {
-            "Done.",
-            "No problem.",
-            "Success.",
-            "Roger, roger.",
-            "Ten four."
+            "<p>Done.</p>",
+            "<p>No problem.</p>",
+            "<p>Success.</p>",
+            "<p>Roger, roger.</p>",
+            "<p>Ten four.</p>"
         };
     private static final String[] OBJECT_NOT_FOUND_LIST = {
-            "Sorry, I cannot find %s.",
-            "Uhhh, I can't find %s.",
-            "There doesn't seem to be a %s nearby.",
-            "Nope.  Sorry, no %s around."
+            "<p>Sorry, I cannot find %s.</p>",
+            "<p>Uhhh, I can't find %s.</p>",
+            "<p>There doesn't seem to be a %s nearby.</p>",
+            "<p>Nope.  Sorry, no %s around.</p>"
         };
 
     private final Morphia morphia;
@@ -86,19 +86,35 @@ public class MudManager {
         // ready to go
     }
 
-    public void startSession(Session session) {
+    public void joinSession(Session session) {
+        String userId = session.getUser().getUserId();
+        String sessionId = session.getSessionId();
         speechOutput = "";
         repromptText = "";
 
-        log.info("new session for userId = {}", session.getUser().getUserId());
+        log.info("joinSession called for userId = {}, sessionId = {}", userId, sessionId);
+        // we are up to date with the current session information
+        if (player != null && player.getId().equals(userId) && player.getSessionId().equals(sessionId)) {
+            // instrumentation that might be expensive
+            player.incrementInteractions();
+            datastore.save(player);
+            return;
+        }
+        log.info("no existing session found, creating a new one for userId = {}, sessionId = {}", userId, sessionId);
         // load the player and populate the interaction
-        player = MudManagerHelper.getPlayer(datastore, session.getUser().getUserId());
+        player = MudManagerHelper.getPlayer(datastore, userId);
         if (player.getIsNew()  == true) {
     	    speechOutput += "<p><s>Ahhh <break strength='strong'/> I always love a new player.</s>  <s>Welcome.</s>  <s>For instructions, say <break strength='strong'/>'help me'.</s></p>";
             player.setIsNew(false);
+            player.setSessionId(sessionId);
+            player.incrementSessions();
             datastore.save(player);
-        } else {
+        }
+        if (!player.getSessionId().equals(sessionId)) {
             speechOutput += "<p>Welcome back to the Mud.</p>";
+            player.setSessionId(sessionId);
+            player.incrementSessions();
+            datastore.save(player);
         }
     }
 
@@ -114,7 +130,7 @@ public class MudManager {
     public SpeechletResponse getLaunchResponse(LaunchRequest request, Session session) {
         speechOutput += getRoomFullDescriptionSSML();
         speechOutput += "<p>You have " + player.getInventorySize() + " items in your inventory</p>";
-        speechOutput += "<p>" + randomFrom(WHAT_NEXT_Q_LIST) + "</p>";
+        speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
         repromptText += randomFrom(REPROMPT_Q_LIST);
 
         return getAskSpeechletResponse();
@@ -151,7 +167,7 @@ public class MudManager {
                             true, true, false);
             // report search results
             if (searchResult.found == 0) {
-                speechOutput += "<p>" + String.format(randomFrom(OBJECT_NOT_FOUND_LIST), objectSpec)  + "</p>";
+                speechOutput += String.format(randomFrom(OBJECT_NOT_FOUND_LIST), objectSpec);
             } else if (searchResult.found == 1) {
                 if (searchResult.playerItems.size() > 0)
                     speechOutput += "<p>" + searchResult.playerItems.get(0).getDescription() + "</p>";
@@ -188,13 +204,13 @@ public class MudManager {
         if (objectSpecSlot != null && objectSpecSlot.getValue() != null) {
             // check local inventory
             objectSpec = objectSpecSlot.getValue();
-            mudItem = player.getItemIfExists(objectSpec);
+            mudItem = player.getItem(objectSpec);
         }
         if (mudItem != null) {
             MudItem mudItemInto; 
             if (containerSpecSlot != null && containerSpecSlot.getValue() != null) {
                 containerSpec = containerSpecSlot.getValue();
-                mudItemInto = player.getItemIfExists(containerSpec);
+                mudItemInto = player.getItem(containerSpec);
                 
                 // we need to find an object in the local environment that is a container
             }
@@ -212,13 +228,66 @@ public class MudManager {
 
     public SpeechletResponse getGetIntentResponse(Intent intent, Session session) {
         Slot objectSpecSlot = intent.getSlot(SLOT_OBJECTSPEC);          // any object
-        Slot fromObjectSpecSlot = intent.getSlot(SLOT_CONTAINERSPEC); // preceeded by 'from' so basically anything with isContainer set
+        Slot containerSpecSlot = intent.getSlot(SLOT_CONTAINERSPEC); // preceeded by 'from' so basically anything with isContainer set
         if (objectSpecSlot != null && objectSpecSlot.getValue() != null) {
             String objectSpec = objectSpecSlot.getValue();
-            if (MudManagerHelper.playerGet(datastore, player, objectSpec) == null)
-                speechOutput += String.format(randomFrom(OBJECT_NOT_FOUND_LIST), objectSpec);
-            else
-                speechOutput += randomFrom(SUCCESS_LIST);
+
+            // this is a take or get item from a container
+            if (containerSpecSlot != null && containerSpecSlot.getValue() != null) {
+                String containerSpec = containerSpecSlot.getValue();
+                MudItem fromContainer = null;
+                // find in environment
+                        MudItemExitSearchResult searchResult = 
+                                MudManagerHelper.playerItemExitSearch(player, containerSpec,
+                                null, true, true, null,
+                                null, null, null, true,
+                                true, false, false);
+                        // for simplicity, use the first match
+                        if (searchResult.playerItems.size() > 0) {
+                            fromContainer = searchResult.playerItems.get(0);
+                        } else if (searchResult.roomItems.size() > 0) {
+                            fromContainer = searchResult.roomItems.get(0);
+                        }
+                        if (fromContainer != null) {
+log.info("transfering");
+                            // remove item from container, save, put in player, save
+                            MudItem mudItem = null;
+                            // dispenser tag doesn't remove the original from the source container
+                            if (!fromContainer.tags.hasTag("dispenser")) {
+                                mudItem = fromContainer.removeContent(objectSpec);
+                            } else {
+                                mudItem = fromContainer.getContent(objectSpec);
+                            }
+                            if (mudItem == null) {
+log.info("failed find in container");
+                                speechOutput += String.format("<p>Huh. I can't find a %s in the %s.</p>", objectSpec, containerSpec);
+                            } else {
+                                player.addItem(mudItem);
+                                datastore.save(fromContainer);
+                                datastore.save(player);
+                                speechOutput += randomFrom(SUCCESS_LIST);
+                            }
+                        } else {
+                            speechOutput += String.format("<p>I can't find a suitable container named %s</p>", containerSpec);
+                        }
+            } else {
+            // take from the room
+                MudItem mudItem = MudManagerHelper.playerFindItemInRoom(datastore, player, objectSpec);
+                if (mudItem == null || !mudItem.getIsVisibleTo(player))
+                    speechOutput += String.format(randomFrom(OBJECT_NOT_FOUND_LIST), objectSpec);
+                else {
+                    if (!mudItem.getIsGetable())
+                        speechOutput += "<p>" + mudItem.getNotGetableMessage() + "</p>";
+                    else {
+                        if (containerSpecSlot != null && containerSpecSlot.getValue() != null) {
+                            String containerSpec = containerSpecSlot.getValue();
+                        } else if (MudManagerHelper.playerGetFromRoom(datastore, player, mudItem, objectSpec))
+                            speechOutput += randomFrom(SUCCESS_LIST);
+                        else
+                            speechOutput += "<p>Uh oh. Looks like that is no longer here.</p>";
+                    }
+                }
+            }
         } else {
             // what do you want to get?
             speechOutput += "Sorry, I don't know what you want to get.";
@@ -291,7 +360,41 @@ public class MudManager {
 
     // eat, drink, quaff
     public SpeechletResponse getIngestIntentResponse(Intent intent, Session session) {
-        speechOutput += 
+        speechOutput += "unimplemented";
+        speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
+        repromptText += randomFrom(REPROMPT_Q_LIST);
+
+        return getAskSpeechletResponse();
+    }
+
+    public SpeechletResponse getUnlockIntentResponse(Intent intent, Session session) {
+        speechOutput += "unimplemented";
+        speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
+        repromptText += randomFrom(REPROMPT_Q_LIST);
+
+        return getAskSpeechletResponse();
+    }
+
+    // go through an exit
+    public SpeechletResponse getGoIntentResponse(Intent intent, Session session) {
+        Slot exitSpecSlot = intent.getSlot(SLOT_OBJECTSPEC);          // any exit in the room
+        if (exitSpecSlot != null && exitSpecSlot.getValue() != null) {
+            String exitSpec = exitSpecSlot.getValue();
+
+            MudExit mudExit = MudManagerHelper.playerGetExit(datastore, player, exitSpec);
+            if (mudExit != null) {
+                if (mudExit.getIsLockedTo(player))
+                    speechOutput += "<p>" + mudExit.getLockedMessage() + "</p>";
+                else if (MudManagerHelper.playerMove(datastore, player, mudExit))
+                    speechOutput += randomFrom(SUCCESS_LIST);
+                else
+                    speechOutput += "<p>There was a problem trying to move " + exitSpec + "</p>";
+            } else {
+                speechOutput += "<p>Sorry, I couldn't find an exit named " + exitSpec + "</p>";
+            }
+        } else {
+            speechOutput += player.getRoom().getHint();
+        }
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
         repromptText += randomFrom(REPROMPT_Q_LIST);
 

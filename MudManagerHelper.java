@@ -55,10 +55,22 @@ public final class MudManagerHelper {
         return player;
     }
 
-    public static boolean playerMove(Datastore datastore, MudPlayer player, String exit) {
+    public static MudExit playerGetExit(Datastore datastore, MudPlayer player, String exit) {
         MudRoom oldRoom = player.getRoom();
-        MudRoom newRoom = oldRoom.getExitDestination(exit);
 
+        MudExit mudExit = oldRoom.getExit(exit);
+
+        return mudExit;
+    }
+
+    // this doesn't check for locks
+    public static boolean playerMove(Datastore datastore, MudPlayer player, MudExit mudExit) {
+        MudRoom oldRoom = player.getRoom();
+
+        if (mudExit == null)
+            return false;
+
+        MudRoom newRoom = mudExit.getDestination();
         if (newRoom == null ) {
             return false;
         }
@@ -90,16 +102,21 @@ public final class MudManagerHelper {
         return true;
     }
 
-    public static MudItem playerGet(Datastore datastore, MudPlayer player, String name) {
+    public static MudItem playerFindItemInRoom(Datastore datastore, MudPlayer player, String name) {
         MudRoom currentRoom = player.getRoom();
-        MudItem mudItem = currentRoom.getItemIfExists(name);
-        if (mudItem != null && mudItem.getIsGetable()) {
+        return currentRoom.getItem(name);
+    }
+
+    public static boolean playerGetFromRoom(Datastore datastore, MudPlayer player, MudItem mudItem, String name) {
+        MudRoom currentRoom = player.getRoom();
+        if (mudItem != null) {
             currentRoom.removeItem(name);
             player.addItem(mudItem);
             datastore.save(player);
             datastore.save(currentRoom);
+            return true;
         }
-        return mudItem;
+        return false;
     }
 
     public static MudItem itemNew(String shortName, String fullName, String description) {
@@ -117,20 +134,23 @@ public final class MudManagerHelper {
 
         if (mudItem != null) {
             log.info("isItemMatch: mudItem.shortName = {}", mudItem.getShortName());
-            if (isGetable != null && (isGetable == mudItem.getIsGetable()))
+            if (isGetable != null && (isGetable != mudItem.getIsGetable()))
                 addItem = false;
-            else if (isContainer != null && (isContainer == mudItem.getIsContainer()))
+            else if (isContainer != null && (isContainer != mudItem.getIsContainer()))
                 addItem = false;
-            else if (isVisible != null && mudItem.getIsVisibleTo(player))
+            else if (isVisible != null && (isVisible != mudItem.getIsVisibleTo(player))) 
+{
+log.info("FFFFFFFFAAAAAAAAIIIIIIIIILLLLLLLLL!!!!!!!!!!");
                 addItem = false;
-            else if (isUseable != null && (isUseable == mudItem.getIsUsable()))
+}
+            else if (isUseable != null && (isUseable =! mudItem.getIsUsable()))
                 addItem = false;
             else if (hasUsesLeft != null && ((hasUsesLeft && mudItem.getUsesLeft() > 0) 
                     || (!hasUsesLeft && mudItem.getUsesLeft() == 0)))
                 addItem = false;
-            else if (isIngestable != null && (isIngestable == mudItem.getIsIngestable()))
+            else if (isIngestable != null && (isIngestable != mudItem.getIsIngestable()))
                 addItem = false;
-            else if (hasTag != null && mudItem.tags.hasTag(hasTag))
+            else if (hasTag != null && !mudItem.tags.hasTag(hasTag))
                 addItem = false;
             return addItem;
         }
@@ -153,12 +173,12 @@ public final class MudManagerHelper {
                     includeExits, includeFullName);
 
         if (includePlayer) {
-            mudItem = player.getItemIfExists(name);
+            mudItem = player.getItem(name);
             if (isItemMatch(player, mudItem, isGetable, isContainer, isVisible, isUseable,
                     hasUsesLeft, isIngestable, hasTag))
                 result.playerItems.add(mudItem);
             if (includeFullName) {
-                HashSet<MudItem> mudItemList = player.getItemListIfExistsByFullName(name);
+                HashSet<MudItem> mudItemList = player.getItemListByFullName(name);
                 Iterator<MudItem> it = mudItemList.iterator();
                 while (it.hasNext()) {
                     mudItem = it.next();
@@ -170,12 +190,12 @@ public final class MudManagerHelper {
         }
 
         if (includeRoom) {
-            mudItem = room.getItemIfExists(name);
+            mudItem = room.getItem(name);
             if (isItemMatch(player, mudItem, isGetable, isContainer, isVisible, isUseable,
                     hasUsesLeft, isIngestable, hasTag))
                 result.roomItems.add(mudItem);
             if (includeFullName) {
-                HashSet<MudItem> mudItemList = room.getItemListIfExistsByFullName(name);
+                HashSet<MudItem> mudItemList = room.getItemListByFullName(name);
                 Iterator<MudItem> it = mudItemList.iterator();
                 while (it.hasNext()) {
                     mudItem = it.next();
@@ -187,7 +207,7 @@ public final class MudManagerHelper {
         }
 
         if (includeExits) {
-            MudExit mudExit = room.getExitIfExists(name);
+            MudExit mudExit = room.getExit(name);
             if (mudExit != null) {
                 boolean addExit = true;
                 if (isGetable != null && isGetable == true)

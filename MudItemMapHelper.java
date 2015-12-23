@@ -42,6 +42,7 @@ public final class MudItemMapHelper {
     // remove an item from the list and pop names off the stack
     public static MudItem removeItem(Map<String, MudItem> items, String name) {
         MudItem item = items.get(name);
+System.out.println("-==-=-=-=-=-=-=- " + name + " == null ?= " + (item == null));
         if (item == null)
             return null;
 
@@ -78,13 +79,13 @@ public final class MudItemMapHelper {
         return false;
     }
 
-    public static MudItem getItemIfExists(Map<String, MudItem> itemMap, String name) {
+    public static MudItem getItem(Map<String, MudItem> itemMap, String name) {
         if (hasItem(itemMap, name))
             return itemMap.get(name);
         return null;
     }
 
-    public static HashSet<MudItem> getItemListIfExistsByFullName(Map<String, MudItem> itemMap, String name) {
+    public static HashSet<MudItem> getItemListByFullName(Map<String, MudItem> itemMap, String name) {
         HashSet<MudItem> mudItemList = new HashSet<MudItem>();
         Iterator it = itemMap.entrySet().iterator();
         while (it.hasNext()) {

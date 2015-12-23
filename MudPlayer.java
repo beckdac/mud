@@ -17,6 +17,7 @@ import java.util.HashSet;
 public class MudPlayer {
     @Id private String id;
     private Date lastSeen;
+    private String sessionId;
     int sessions;
     int interactions;
     boolean isNew;
@@ -27,6 +28,7 @@ public class MudPlayer {
     public MudTags tags;
 
     public MudPlayer() {
+        sessionId = "";
         sessions = 0;
         interactions = 0;
         isNew = true;
@@ -39,6 +41,18 @@ public class MudPlayer {
 
     public void setId(String ID) {
         id = ID;
+    }
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    public boolean isSessionId(String sessionId) {
+        return this.sessionId.equals(sessionId);
     }
 
     public MudRoom getRoom() {
@@ -61,12 +75,12 @@ public class MudPlayer {
         return MudItemMapHelper.hasItem(inventory, name);
     }
 
-    public MudItem getItemIfExists(String name) {
-        return MudItemMapHelper.getItemIfExists(inventory, name);
+    public MudItem getItem(String name) {
+        return MudItemMapHelper.getItem(inventory, name);
     }
 
-    public HashSet<MudItem> getItemListIfExistsByFullName(String name) {
-        return MudItemMapHelper.getItemListIfExistsByFullName(inventory, name);
+    public HashSet<MudItem> getItemListByFullName(String name) {
+        return MudItemMapHelper.getItemListByFullName(inventory, name);
     }
 
     public Map<String, MudItem> getItems() {

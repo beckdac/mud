@@ -65,7 +65,7 @@ public class MudRoom {
         return true;
     }
 
-    public MudExit getExitIfExists(String name) {
+    public MudExit getExit(String name) {
         return exits.get(name);
     }
 
@@ -92,12 +92,12 @@ public class MudRoom {
         return MudItemMapHelper.hasItem(items, name);
     }
 
-    public MudItem getItemIfExists(String name) {
-        return MudItemMapHelper.getItemIfExists(items, name);
+    public MudItem getItem(String name) {
+        return MudItemMapHelper.getItem(items, name);
     }
 
-    public HashSet<MudItem> getItemListIfExistsByFullName(String name) {
-        return MudItemMapHelper.getItemListIfExistsByFullName(items, name);
+    public HashSet<MudItem> getItemListByFullName(String name) {
+        return MudItemMapHelper.getItemListByFullName(items, name);
     }
 
     public Map<String, MudItem> getItems() {
