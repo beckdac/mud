@@ -6,9 +6,10 @@ import org.mongodb.morphia.Datastore;
 
 import org.bson.types.ObjectId;
 
+import java.util.Map;
 import java.util.List;
 import java.util.Random;
-import java.util.Map;
+import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import com.amazon.speech.speechlet.Session;
 import com.amazon.speech.speechlet.SpeechletResponse;
 import com.amazon.speech.ui.Card;
 import com.amazon.speech.ui.PlainTextOutputSpeech;
+import com.amazon.speech.ui.SsmlOutputSpeech;
 import com.amazon.speech.ui.Reprompt;
 import com.amazon.speech.ui.SimpleCard;
 
@@ -58,16 +60,16 @@ public class MudManager {
             "Ten four."
         };
     private static final String[] OBJECT_NOT_FOUND_LIST = {
-            "Sorry, I cannot find {}.",
-            "Uhhh, I can't find {}.",
-            "There doesn't seem to be a {} nearby.",
-            "Nope.  Sorry, no {} is around."
+            "Sorry, I cannot find %s.",
+            "Uhhh, I can't find %s.",
+            "There doesn't seem to be a %s nearby.",
+            "Nope.  Sorry, no %s around."
         };
 
     private final Morphia morphia;
     private final Datastore datastore;
 
-    private final MudPlayer player;
+    private MudPlayer player;
 
     private String speechOutput;
     private String repromptText;
@@ -79,18 +81,19 @@ public class MudManager {
         datastore = morphia.createDatastore(new MongoClient(), MONGO_DATABASE);
         datastore.ensureIndexes();
 
+        speechOutput = "";
+        repromptText = "";
+
         // load the player and populate the interaction
         player = MudManagerHelper.getPlayer(datastore, session.getUser().getUserId());
         if (player.getIsNew()  == true) {
-    	    speechOutput += "Ah, a new player.  Welcome.  For instructions, say 'help me'.";
+    	    speechOutput += "<p><s>Ahhh <break strength='strong'> I always love a new player.</s>  <s>Welcome.</s>  <s>For instructions, say <break strength='strong'>'help me'.</s></p>";
             player.setIsNew(false);
             datastore.save(player);
         } else {
-            speechOutput += "Welcome back to the Mud.";
+            speechOutput += "<p>Welcome back to the Mud.</p>";
         }
 
-        speechOutput = "";
-        repromptText = "";
         // ready to go
     }
 
@@ -104,12 +107,31 @@ public class MudManager {
      * @return response for launch request
      */
     public SpeechletResponse getLaunchResponse(LaunchRequest request, Session session) {
-        speechOutput += "You have " + player.getInventorySize() + " items in your inventory.";
-        speechOutput += player.getRoom().getDescription();
-        speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
+        speechOutput += getRoomFullDescriptionSSML();
+        speechOutput += "<p>You have " + player.getInventorySize() + " items in your inventory</p>";
+        speechOutput += "<p>" + randomFrom(WHAT_NEXT_Q_LIST) + "</p>";
         repromptText += randomFrom(REPROMPT_Q_LIST);
 
         return getAskSpeechletResponse();
+    }
+
+    private String getRoomFullDescriptionSSML() {
+        String ssml = "";
+        MudRoom room = player.getRoom();
+        ssml += "<p>" + room.getDescription() + "</p>";
+        String itemList = "";
+        Iterator it = room.getItems().entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            itemList += (String)pair.getKey() + ",";
+        }
+        if (itemList.length() > 1) {
+            ssml += "<p>Nearby you see:" + itemList + "</p>";
+        }
+        int playersNearby = room.getPlayers().size();
+        if (playersNearby > 1)
+            ssml += String.format("<p>There are %d other players here.</p>", playersNearby);
+        return ssml;
     }
 
     public SpeechletResponse getLookIntentResponse(Intent intent, Session session) {
@@ -124,27 +146,28 @@ public class MudManager {
                             true, true, false);
             // report search results
             if (searchResult.found == 0) {
-                speechOutput += String.format(randomFrom(OBJECT_NOT_FOUND_LIST), objectSpec);
+                speechOutput += "<p>" + String.format(randomFrom(OBJECT_NOT_FOUND_LIST), objectSpec)  + "</p>";
             } else if (searchResult.found == 1) {
                 if (searchResult.playerItems.size() > 0)
-                    speechOutput += searchResult.playerItems.get(0).getDescription();
-                else if (searchResult.playerItems.size() > 0)
-                    speechOutput += searchResult.roomItems.get(0).getDescription();
+                    speechOutput += "<p>" + searchResult.playerItems.get(0).getDescription() + "</p>";
+                else if (searchResult.roomItems.size() > 0)
+                    speechOutput += "<p>" + searchResult.roomItems.get(0).getDescription() + "</p>";
                 else
-                    speechOutput += searchResult.roomExits.get(0).getDescription();
+                    speechOutput += "<p>" + searchResult.roomExits.get(0).getDescription() + "</p>";
             } else {
                 // report how many found in each set, not too helpful right now :(
-                speechOutput += String.format("OK, I found %d things called '%s'.", searchResult.found, objectSpec);
+                speechOutput += String.format("<p><s>OK, I found %d things called '%s'.</s>", searchResult.found, objectSpec);
                 if (searchResult.playerItems.size() > 0) {
-                    speechOutput += Integer.toString(searchResult.playerItems.size()) + " in your inventory.";
+                    speechOutput += "<s>" + Integer.toString(searchResult.playerItems.size()) + " in your inventory.</s>";
                 } else if (searchResult.playerItems.size() > 0) {
-                    speechOutput += Integer.toString(searchResult.roomItems.size()) + " nearby.";
+                    speechOutput += "<s>" + Integer.toString(searchResult.roomItems.size()) + " nearby.</s>";
                 } else {
-                    speechOutput += "And " + Integer.toString(searchResult.roomExits.size()) + "exits";
+                    speechOutput += "<s>And " + Integer.toString(searchResult.roomExits.size()) + "exits.<s/><p>";
                 }
             }
-        } else 
-            speechOutput += player.getRoom().getDescription();
+        } else {
+            speechOutput += getRoomFullDescriptionSSML();
+        }
         repromptText += randomFrom(REPROMPT_Q_LIST);
 
         return getAskSpeechletResponse();
@@ -326,9 +349,9 @@ public class MudManager {
         card.setTitle("Mud");
         card.setContent(speechOutput);
 
-        // Create the plain text output.
-        PlainTextOutputSpeech speech = new PlainTextOutputSpeech();
-        speech.setText(speechOutput);
+        // create the SSML output
+        SsmlOutputSpeech speech = new SsmlOutputSpeech();
+        speech.setSsml("<speak>" + speechOutput + "</speak>");
 
         // Create reprompt
         PlainTextOutputSpeech repromptSpeech = new PlainTextOutputSpeech();

@@ -25,7 +25,6 @@ public final class MudManagerHelper {
         MudPlayer player = datastore.get(MudPlayer.class, userId);
         if (player == null) {
             player = playerNew(datastore, userId);
-            player.setIsNew(true);
         }
         player.updateLastSeen();
         player.incrementInteractions();
@@ -46,6 +45,7 @@ public final class MudManagerHelper {
         log.info("new player with userId = {} in roomId = {}", userId, startRoom.getId());
         player.setId(userId);
         player.setRoom(startRoom);
+        player.setIsNew(true);
         datastore.save(player);
 
         startRoom.addPlayer(player);
@@ -113,9 +113,10 @@ public final class MudManagerHelper {
     public static boolean isItemMatch(MudPlayer player, MudItem mudItem,
             Boolean isGetable, Boolean isContainer, Boolean isVisible, Boolean isUseable,
             Boolean hasUsesLeft, Boolean isIngestable, String hasTag) {
+        boolean addItem = true;
 
         if (mudItem != null) {
-            boolean addItem = true;
+            log.info("isItemMatch: mudItem.shortName = {}", mudItem.getShortName());
             if (isGetable != null && (isGetable == mudItem.getIsGetable()))
                 addItem = false;
             else if (isContainer != null && (isContainer == mudItem.getIsContainer()))
@@ -131,6 +132,7 @@ public final class MudManagerHelper {
                 addItem = false;
             else if (hasTag != null && mudItem.tags.hasTag(hasTag))
                 addItem = false;
+            return addItem;
         }
         return false;
     }
@@ -143,6 +145,12 @@ public final class MudManagerHelper {
         MudItemExitSearchResult result = new MudItemExitSearchResult();
         MudRoom room = player.getRoom();
         MudItem mudItem;
+
+        log.info("playerItemExitSearch({}, {}, isGetable = {}, isContainer = {}, isVisible = {}, isUseable = {}, "
+                + "hasUsesLeft = {}, isIngestable = {}, hasTag = {}, includePlayer = {}, includeRoom = {}, "
+                + "includeExits = {}, includeFullName = {})", player.getId(), name, isGetable, isContainer, isVisible,
+                    isUseable, hasUsesLeft, isIngestable, hasTag, includePlayer, includeRoom,
+                    includeExits, includeFullName);
 
         if (includePlayer) {
             mudItem = player.getItemIfExists(name);
@@ -180,23 +188,25 @@ public final class MudManagerHelper {
 
         if (includeExits) {
             MudExit mudExit = room.getExitIfExists(name);
-            boolean addExit = true;
-            if (isGetable != null && isGetable == true)
-                addExit = false;
-            else if (isContainer != null && isContainer == true)
-                addExit = false;
-            else if (isVisible != null && mudExit.getIsVisibleTo(player))
-                addExit = false;
-            else if (isUseable != null && isUseable == true)
-                addExit = false;
-            else if (hasUsesLeft != null)
-                addExit = false;
-            else if (isIngestable != null)
-                addExit = false;
-            else if (hasTag != null && !mudExit.tags.hasTag(hasTag))
-                addExit = false;
-            if (addExit)
-                result.roomExits.add(mudExit);
+            if (mudExit != null) {
+                boolean addExit = true;
+                if (isGetable != null && isGetable == true)
+                    addExit = false;
+                else if (isContainer != null && isContainer == true)
+                    addExit = false;
+                else if (isVisible != null && mudExit.getIsVisibleTo(player))
+                    addExit = false;
+                else if (isUseable != null && isUseable == true)
+                    addExit = false;
+                else if (hasUsesLeft != null)
+                    addExit = false;
+                else if (isIngestable != null)
+                    addExit = false;
+                else if (hasTag != null && !mudExit.tags.hasTag(hasTag))
+                    addExit = false;
+                if (addExit)
+                    result.roomExits.add(mudExit);
+            }
         }
         result.found = result.playerItems.size() + result.roomItems.size() + result.roomExits.size();
         return result;

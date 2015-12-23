@@ -62,6 +62,7 @@ public class MudSpeechlet implements Speechlet {
         Intent intent = request.getIntent();
         String intentName = (intent != null) ? intent.getName() : null;
 
+        log.info("intentName = {}", intentName);
         switch (intentName) {
             case "LookIntent":
                 return mudManager.getLookIntentResponse(intent, session);

@@ -51,6 +51,14 @@ public class Test {
 
         MudPlayer player = MudManagerHelper.getPlayer(datastore, userId);
 
+        String itemName = "key dispenser";
+        MudItemExitSearchResult searchResult =
+                MudManagerHelper.playerItemExitSearch(player, itemName,
+                        null, null, true, null,
+                        null, null, null, true,
+                        true, true, false);
+        log.info("found {} items total matching {}", searchResult.found, itemName);
+
         MudManagerHelper.playerMove(datastore, player, "north");
         MudManagerHelper.playerGet(datastore, player, "key 2");
         MudManagerHelper.playerGet(datastore, player, "key");

@@ -114,7 +114,7 @@ public class MudItem {
     }
 
     public boolean getIsVisibleTo(MudPlayer player) {
-        return visibility.getIsRestrictedTo(player);
+        return !visibility.getIsRestrictedTo(player);
     }
 
     public boolean getIsUsable() {
