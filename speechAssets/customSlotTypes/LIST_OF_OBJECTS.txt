@@ -1,0 +1,6 @@
+key dispenser
+chest
+trashcan
+cake
+sign
+trophy
