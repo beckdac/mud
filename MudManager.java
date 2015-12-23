@@ -67,6 +67,13 @@ public class MudManager {
             "<p>There doesn't seem to be a %s nearby.</p>",
             "<p>Nope.  Sorry, no %s around.</p>"
         };
+    private static final String[] GOODBYE_LIST = {
+            "<p>Goodbye.</p>",
+            "<p>Over and out.</p>",
+            "<p>Back to my day job.</p>",
+            "<p>Peace out.</p>",
+            "<p>Kay Kay Buh Bye.</p>"
+        };
 
     private final Morphia morphia;
     private final Datastore datastore;
@@ -74,7 +81,7 @@ public class MudManager {
     private MudPlayer player;
 
     private String speechOutput;
-    private String repromptText;
+    private String repromptSpeech;
 
     public MudManager(final MongoClient mongoClient, Session session) {
         morphia = new Morphia();
@@ -90,7 +97,7 @@ public class MudManager {
         String userId = session.getUser().getUserId();
         String sessionId = session.getSessionId();
         speechOutput = "";
-        repromptText = "";
+        repromptSpeech = "";
 
         log.info("joinSession called for userId = {}, sessionId = {}", userId, sessionId);
         // we are up to date with the current session information
@@ -131,7 +138,7 @@ public class MudManager {
         speechOutput += getRoomFullDescriptionSSML();
         speechOutput += "<p>You have " + player.getInventorySize() + " items in your inventory</p>";
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
-        repromptText += randomFrom(REPROMPT_Q_LIST);
+        repromptSpeech += randomFrom(REPROMPT_Q_LIST);
 
         return getAskSpeechletResponse();
     }
@@ -189,7 +196,7 @@ public class MudManager {
         } else {
             speechOutput += getRoomFullDescriptionSSML();
         }
-        repromptText += randomFrom(REPROMPT_Q_LIST);
+        repromptSpeech += randomFrom(REPROMPT_Q_LIST);
 
         return getAskSpeechletResponse();
     }
@@ -220,7 +227,7 @@ public class MudManager {
             else
                 speechOutput += "Sorry, I don't understand what you want to put where.";
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
-        repromptText += randomFrom(REPROMPT_Q_LIST);
+        repromptSpeech += randomFrom(REPROMPT_Q_LIST);
 
         }
         return getAskSpeechletResponse();
@@ -293,7 +300,7 @@ log.info("failed find in container");
             speechOutput += "Sorry, I don't know what you want to get.";
         }
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
-        repromptText += randomFrom(REPROMPT_Q_LIST);
+        repromptSpeech += randomFrom(REPROMPT_Q_LIST);
 
         return getAskSpeechletResponse();
     }
@@ -313,7 +320,7 @@ log.info("failed find in container");
         // transferItem
         speechOutput += 
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
-        repromptText += randomFrom(REPROMPT_Q_LIST);
+        repromptSpeech += randomFrom(REPROMPT_Q_LIST);
 
         return getAskSpeechletResponse();
     }
@@ -322,7 +329,7 @@ log.info("failed find in container");
         // find items or exits with is closed
         speechOutput += "unimplemented";
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
-        repromptText += randomFrom(REPROMPT_Q_LIST);
+        repromptSpeech += randomFrom(REPROMPT_Q_LIST);
 
         return getAskSpeechletResponse();
     }
@@ -330,7 +337,7 @@ log.info("failed find in container");
     public SpeechletResponse getUseIntentResponse(Intent intent, Session session) {
         speechOutput += "unimplemented";
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
-        repromptText += randomFrom(REPROMPT_Q_LIST);
+        repromptSpeech += randomFrom(REPROMPT_Q_LIST);
 
         return getAskSpeechletResponse();
     }
@@ -339,7 +346,7 @@ log.info("failed find in container");
     public SpeechletResponse getSearchIntentResponse(Intent intent, Session session) {
         speechOutput += "unimplemented";
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
-        repromptText += randomFrom(REPROMPT_Q_LIST);
+        repromptSpeech += randomFrom(REPROMPT_Q_LIST);
 
         return getAskSpeechletResponse();
     }
@@ -353,7 +360,7 @@ log.info("failed find in container");
             speechOutput += player.getRoom().getHint();
         }
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
-        repromptText += randomFrom(REPROMPT_Q_LIST);
+        repromptSpeech += randomFrom(REPROMPT_Q_LIST);
 
         return getAskSpeechletResponse();
     }
@@ -362,7 +369,7 @@ log.info("failed find in container");
     public SpeechletResponse getIngestIntentResponse(Intent intent, Session session) {
         speechOutput += "unimplemented";
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
-        repromptText += randomFrom(REPROMPT_Q_LIST);
+        repromptSpeech += randomFrom(REPROMPT_Q_LIST);
 
         return getAskSpeechletResponse();
     }
@@ -370,7 +377,7 @@ log.info("failed find in container");
     public SpeechletResponse getUnlockIntentResponse(Intent intent, Session session) {
         speechOutput += "unimplemented";
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
-        repromptText += randomFrom(REPROMPT_Q_LIST);
+        repromptSpeech += randomFrom(REPROMPT_Q_LIST);
 
         return getAskSpeechletResponse();
     }
@@ -396,7 +403,7 @@ log.info("failed find in container");
             speechOutput += player.getRoom().getHint();
         }
         speechOutput += randomFrom(WHAT_NEXT_Q_LIST);
-        repromptText += randomFrom(REPROMPT_Q_LIST);
+        repromptSpeech += randomFrom(REPROMPT_Q_LIST);
 
         return getAskSpeechletResponse();
     }
@@ -422,7 +429,7 @@ log.info("failed find in container");
             + "for example if I tell you a room has a north exit, you "
             + "can say 'go north'.  You can also ask me for a hint. "
             + "Now, what can I help you with?";
-        repromptText += "Try saying 'look around' or ask me for help again to hear the instructions.";
+        repromptSpeech += "Try saying 'look around' or ask me for help again to hear the instructions.";
 
         return getAskSpeechletResponse();
     }
@@ -439,7 +446,7 @@ log.info("failed find in container");
      * @return response for the exit intent
      */
     public SpeechletResponse getExitIntentResponse(Intent intent, Session session) {
-	    return getTellSpeechletResponse("Goodbye!");
+        return getTellSpeechletResponse(randomFrom(GOODBYE_LIST));
     }
 
     /**
@@ -447,7 +454,7 @@ log.info("failed find in container");
      *
      * @param speechOutput
      *            Text for speech output
-     * @param repromptText
+     * @param repromptSpeech
      *            Text for reprompt output
      * @return ask Speechlet response for a speech and reprompt text
      */
@@ -462,16 +469,16 @@ log.info("failed find in container");
         speech.setSsml("<speak>" + speechOutput + "</speak>");
 
         // Create reprompt
-        PlainTextOutputSpeech repromptSpeech = new PlainTextOutputSpeech();
-        repromptSpeech.setText(repromptText);
-        Reprompt reprompt = new Reprompt();
-        reprompt.setOutputSpeech(repromptSpeech);
+        SsmlOutputSpeech reprompt = new SsmlOutputSpeech();
+        ((SsmlOutputSpeech) reprompt).setSsml("<speak>" + repromptSpeech + "</speak>");
+        Reprompt reprompter = new Reprompt();
+        reprompter.setOutputSpeech(reprompt);
 
         // reset these for the next interaction
         speechOutput = "";
-        repromptText = "";
+        repromptSpeech = "";
 
-        return SpeechletResponse.newAskResponse(speech, reprompt, card);
+        return SpeechletResponse.newAskResponse(speech, reprompter, card);
     }
 
     /**
