@@ -49,6 +49,9 @@ public class MudSpeechlet implements Speechlet {
         log.info("onLaunch requestId={}, sessionId={}", request.getRequestId(),
                 session.getSessionId());
 
+        initializeManager(session);
+        mudManager.startSession(session);
+
         return mudManager.getLaunchResponse(request, session);
     }
 
@@ -59,6 +62,7 @@ public class MudSpeechlet implements Speechlet {
                 session.getSessionId());
 
         initializeManager(session);
+        mudManager.startSession(session);
 
         Intent intent = request.getIntent();
         String intentName = (intent != null) ? intent.getName() : null;
@@ -67,8 +71,24 @@ public class MudSpeechlet implements Speechlet {
         switch (intentName) {
             case "LookIntent":
                 return mudManager.getLookIntentResponse(intent, session);
+            case "PutIntent":
+                return mudManager.getPutIntentResponse(intent, session);
+            case "GetIntent":
+                return mudManager.getGetIntentResponse(intent, session);
+            case "DropIntent":
+                return mudManager.getDropIntentResponse(intent, session);
+            case "UseIntent":
+                return mudManager.getUseIntentResponse(intent, session);
+            case "SearchIntent":
+                return mudManager.getSearchIntentResponse(intent, session);
             case "HintIntent":
                 return mudManager.getHintIntentResponse(intent, session);
+            case "IngestIntent":
+                return mudManager.getIngestIntentResponse(intent, session);
+            case "GoIntent":
+                return mudManager.getGoIntentResponse(intent, session);
+            case "UnlockIntent":
+                return mudManager.getUnlockIntentResponse(intent, session);
             case "AMAZON.HelpIntent":
                 return mudManager.getHelpIntentReponse(intent, session);
             case "AMAZON.StopIntent":

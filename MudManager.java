@@ -30,11 +30,13 @@ import com.amazon.speech.ui.SimpleCard;
 public class MudManager {
     private static final Logger log = LoggerFactory.getLogger(MudManager.class);
 
-    private static final String SLOT_ACTION = "Action";
-    private static final String SLOT_ITEM = "Item";
-    private static final String SLOT_EXIT = "Exit";
-    private static final String SLOT_OBJECTSPEC = "ObjectSpec";
+    private static final String SLOT_CONTAINERANDEXITSPEC = "ContainerAndExitSpec";
     private static final String SLOT_CONTAINERSPEC = "ContainerSpec";
+    private static final String SLOT_EXITSPEC = "ExitSpec";
+    private static final String SLOT_INGESTABLESPEC = "IngestableSpec";
+    private static final String SLOT_LOCKABLESPEC = "LockableSpec";
+    private static final String SLOT_OBJECTSPEC = "ObjectSpec";
+    private static final String SLOT_ONOBJECTSPEC = "OnObjectSpec";
 
     private static final String MONGO_DATABASE = "mud";
 
@@ -93,8 +95,8 @@ public class MudManager {
         player = MudManagerHelper.getPlayer(datastore, session.getUser().getUserId());
         if (player.getIsNew()  == true) {
     	    speechOutput += "<p><s>Ahhh <break strength='strong'/> I always love a new player.</s>  <s>Welcome.</s>  <s>For instructions, say <break strength='strong'/>'help me'.</s></p>";
-//            player.setIsNew(false);
-//            datastore.save(player);
+            player.setIsNew(false);
+            datastore.save(player);
         } else {
             speechOutput += "<p>Welcome back to the Mud.</p>";
         }
