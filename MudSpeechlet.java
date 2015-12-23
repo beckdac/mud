@@ -40,6 +40,7 @@ public class MudSpeechlet implements Speechlet {
                 session.getSessionId());
 
         initializeManager(session);
+        mudManager.startSession(session);
     }
 
     @Override

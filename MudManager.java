@@ -81,20 +81,23 @@ public class MudManager {
         datastore = morphia.createDatastore(new MongoClient(), MONGO_DATABASE);
         datastore.ensureIndexes();
 
+        // ready to go
+    }
+
+    public void startSession(Session session) {
         speechOutput = "";
         repromptText = "";
 
+        log.info("new session for userId = {}", session.getUser().getUserId());
         // load the player and populate the interaction
         player = MudManagerHelper.getPlayer(datastore, session.getUser().getUserId());
         if (player.getIsNew()  == true) {
-    	    speechOutput += "<p><s>Ahhh <break strength='strong'> I always love a new player.</s>  <s>Welcome.</s>  <s>For instructions, say <break strength='strong'>'help me'.</s></p>";
-            player.setIsNew(false);
-            datastore.save(player);
+    	    speechOutput += "<p><s>Ahhh <break strength='strong'/> I always love a new player.</s>  <s>Welcome.</s>  <s>For instructions, say <break strength='strong'/>'help me'.</s></p>";
+//            player.setIsNew(false);
+//            datastore.save(player);
         } else {
             speechOutput += "<p>Welcome back to the Mud.</p>";
         }
-
-        // ready to go
     }
 
     /**
@@ -130,7 +133,7 @@ public class MudManager {
         }
         int playersNearby = room.getPlayers().size();
         if (playersNearby > 1)
-            ssml += String.format("<p>There are %d other players here.</p>", playersNearby);
+            ssml += String.format("<p>There are %d other players here.</p>", playersNearby - 1);
         return ssml;
     }
 
