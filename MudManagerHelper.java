@@ -139,10 +139,7 @@ public final class MudManagerHelper {
             else if (isContainer != null && (isContainer != mudItem.getIsContainer()))
                 addItem = false;
             else if (isVisible != null && (isVisible != mudItem.getIsVisibleTo(player))) 
-{
-log.info("FFFFFFFFAAAAAAAAIIIIIIIIILLLLLLLLL!!!!!!!!!!");
                 addItem = false;
-}
             else if (isUseable != null && (isUseable =! mudItem.getIsUsable()))
                 addItem = false;
             else if (hasUsesLeft != null && ((hasUsesLeft && mudItem.getUsesLeft() > 0) 

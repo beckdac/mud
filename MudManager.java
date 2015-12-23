@@ -159,6 +159,18 @@ public class MudManager {
         int playersNearby = room.getPlayers().size();
         if (playersNearby > 1)
             ssml += String.format("<p>There are %d other players here.</p>", playersNearby - 1);
+        String exitList = "";
+        it = room.getExits().entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            exitList += (String)pair.getKey() + ",";
+        } 
+        if (exitList.length() > 0) {
+            if (exitList.length() > 1) {
+                ssml += String.format("<p>You can go %d places: ", room.getExits().size());
+                ssml += exitList + "</p>";
+            }
+        }
         return ssml;
     }
 
